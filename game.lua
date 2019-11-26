@@ -6,7 +6,7 @@ local scene = composer.newScene ()
 local fCenterX = display.contentWidth / 2
 local fCenterY = display.contentHeight / 2
 
-local iFixCount = 10
+local iFixCount = 15
 
 ---------------------------------------------------------------------------------------
 -- create()
