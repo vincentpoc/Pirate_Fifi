@@ -1,6 +1,8 @@
 --------------------- INIT --------------------------------------------------------------------
 local composer = require ("composer")
 
+fCenterX, fCenterY  = display.contentWidth  / 2, display.contentHeight / 2
+
 -- Hide status bar
 display.setStatusBar (display.HiddenStatusBar)
 
@@ -17,7 +19,8 @@ local options =
 		sampleVar2 = "another sample variable"
 	}
 }
-composer.gotoScene ("game", options)
+
+composer.gotoScene ("scene.menu")
+
 
 -----------------------------------------------------------------------------------------
-
