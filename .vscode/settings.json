@@ -1,0 +1,10 @@
+{
+    "Lua.diagnostics.globals": [
+        "onTapGoToGame",
+        "display",
+        "timer"
+    ],
+    "Lua.diagnostics.disable": [
+        "lowercase-global"
+    ]
+}

@@ -4,6 +4,7 @@ local scene    = composer.newScene ()
 local sceneGroup
 ---------------------------------------------------------------------------------------------------
 local level = 1
+local textLevel
 local avariTimer = {}
 local AvariState = {}
 ---------------------------------------------------------------------------------------------------
@@ -13,7 +14,6 @@ local function spawnAvari (px, py, id)
 	AvariState[id] = true
 	local iFixCount = 2
 	local r = 150
-	--local px, py = math.random(r*-1, r), math.random(r*-1, r)
 	-------------------- ASSET ---------------------------------
 	local buttonAvari = display.newCircle (sceneGroup, 0, 0, 25)
 	local textAvari   = display.newText (sceneGroup, tostring (iFixCount) .. " Fixs", 0, 0, "Arial", 12)
@@ -86,8 +86,6 @@ function scene:create (event)
 	spawnAvari(-105,0,1)
 	spawnAvari(-35,0,2)
 	spawnAvari(35,0,3)
-
-	print( "A:".. tostring(AvariA) )
 
 end
 ----------------------------------------------------------------------------------------- show()

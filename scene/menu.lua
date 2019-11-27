@@ -6,6 +6,7 @@ function scene:create (event)
 
   local sceneGroup = self.view
   local btGoToGame = display.newRect( sceneGroup, 150, 150, 200, 50 )
+  
   btGoToGame:setFillColor(0, 0, 1)
   function onTapGoToGame ( event )
       local options =
