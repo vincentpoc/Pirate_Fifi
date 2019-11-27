@@ -6,10 +6,9 @@ local sceneIsActive = true
 
 local function cycleTrans( object, factorX, factorY)
   transition.to( object, { time=(4000 * factorX), x= object.x - 256, y= object.y - (15 * factorY), onComplete=function ()
-      print("TRANS")
       if factorY < 0 then  factorY = 1.0 elseif factorY > 0 then factorY = -1.0 end
       if object.x < -512 then object.x = 256 end
-      if sceneIsActive then cycleTrans(object, factorX, factorY) end
+      if sceneIsActive or factorY == 0 then cycleTrans(object, factorX, factorY) end
     end } )
     return true
 end
@@ -27,7 +26,7 @@ function scene:create (event)
     bgSky.x = 1024 * i
     skyGroup:insert(bgSky)
   end
-  skyGroup.x,skyGroup.y = 0, fCenterY - 65
+  skyGroup.x,skyGroup.y = 0, fCenterY
   --skyGroup:scale(0.5,0.5)
   cycleTrans(skyGroup,3.0,0)
 
@@ -43,24 +42,29 @@ function scene:create (event)
   cycleTrans(waveGroup,0.5,1.0)
 
   ---START BUTTON --
+  local uititle = display.newImageRect("assets/ui_title.png",512,327)
+  uititle.x,uititle.y = fCenterX,fCenterY - 150
+
   local btGoToGame = display.newImageRect( "assets/ui_frame.png", 256, 128)
-  btGoToGame.x, btGoToGame.y = fCenterX, fCenterY - 30
-  local txGoToGame = display.newText("START", fCenterX, fCenterY - 30, "Comic Sans MS", 60)
+  btGoToGame.x, btGoToGame.y = fCenterX, fCenterY + 100
+  local txGoToGame = display.newText("START", btGoToGame.x, btGoToGame.y, "Comic Sans MS", 60)
   txGoToGame:setFillColor(1,1,0)
 
   --STAGE--
-  menuGroup:insert(skyGroup)
-  menuGroup:insert(waveGroup)
-  menuGroup:insert(btGoToGame)
-  menuGroup:insert(txGoToGame)
-  sceneGroup:insert(menuGroup)
+  --menuGroup:insert(skyGroup)
+  skyGroup:toBack()
+  sceneGroup:insert(waveGroup)
+  sceneGroup:insert(btGoToGame)
+  sceneGroup:insert(txGoToGame)
+  sceneGroup:insert(uititle)
+  --sceneGroup:insert(menuGroup)
 
   --EVENT---
   function onTapGoToGame ( event )
       local options =
       {
           effect = "fade",
-          time = 1000,
+          time = 500,
       }
       composer.gotoScene( "scene.game", options )
       return true

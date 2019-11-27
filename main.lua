@@ -4,6 +4,9 @@ local composer = require ("composer")
 fCenterX, fCenterY  = display.contentCenterX, display.contentCenterY
 fWidth, fHeight = display.contentWidth, display.contentHeight
 
+gameCriticLevel = 5
+gameCriticMaxLevel = 10
+
 -- Hide status bar
 display.setStatusBar (display.HiddenStatusBar)
 
@@ -14,11 +17,8 @@ math.randomseed (os.time () )
 local options =
 {
 	effect = "fade",
-	time = 400,
-	params = {
-		sampleVar1 = "my sample variable",
-		sampleVar2 = "another sample variable"
-	}
+	time = 400
 }
 
 composer.gotoScene ("scene.menu")
+--composer.gotoScene ("scene.debugger")
