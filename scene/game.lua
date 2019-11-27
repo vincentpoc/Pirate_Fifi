@@ -3,28 +3,34 @@ local composer = require ("composer")
 local scene    = composer.newScene ()
 local sceneGroup
 ---------------------------------------------------------------------------------------------------
-local level = 1
-local textLevel
+local level = 0
+local levelProgression
 local avariTimer = {}
 local AvariState = {}
 ---------------------------------------------------------------------------------------------------
 local function spawnAvari (px, py, id)
 
-	--local AvariState = true
 	AvariState[id] = true
 	local iFixCount = 2
-	local r = 150
 	-------------------- ASSET ---------------------------------
-	local buttonAvari = display.newCircle (sceneGroup, 0, 0, 25)
-	local textAvari   = display.newText (sceneGroup, tostring (iFixCount) .. " Fixs", 0, 0, "Arial", 12)
-	buttonAvari:setFillColor (1, 0, 0)
-
+	local iconSheepOptions = {
+		width = 128,
+		height = 128,
+		numFrames =3,
+		sheetContentWidth = 384,
+		sheetContentHeight = 128
+	}
+	local iconSheet = graphics.newImageSheet( "assets/avari_icon.png", iconSheepOptions )
+	local buttonAvari = display.newSprite( iconSheet, {name="icon", start=1, count=iconSheepOptions.numFrames} )
+	buttonAvari:setFrame(2)
+	local textAvari   = display.newText (tostring (iFixCount) .. " Fixs", 0, 50, "Arial", 12)
+	--buttonAvari:setFillColor (1, 0, 0)
 	--------------------- GROUP --------------------------------
 	local groupAvari = display.newGroup ()
-	groupAvari:insert (buttonAvari)
-	groupAvari:insert (textAvari)
-	groupAvari.x, groupAvari.y = fCenterX+px, fCenterY+py
-
+	groupAvari:insert(buttonAvari)
+	groupAvari:insert(textAvari)
+	sceneGroup:insert(groupAvari)
+	groupAvari.x, groupAvari.y = fCenterX + px, fCenterY + py
 	------------------ EVENT -------------------------------------
 	local function avariFixOnTap (event)
 		if iFixCount > 0 then
@@ -34,15 +40,14 @@ local function spawnAvari (px, py, id)
 
 		elseif AvariState[id] then
 
-			buttonAvari:setFillColor (0, 1, 0)
+			buttonAvari:setFrame(1)
 			textAvari.text = "FIXED"
 			AvariState[id]  = false
 
 			avariTimer[id] = timer.performWithDelay( math.random(1, 2) * 1000, function ()
 
-					buttonAvari:setFillColor (1, 0, 0)
-
 					iFixCount = 2 + level
+					buttonAvari:setFrame(2)
 					textAvari.text = tostring (iFixCount) .. " Fixs"
 
 					groupAvari.isVisible  = true
@@ -55,7 +60,6 @@ local function spawnAvari (px, py, id)
 				end )
 
 		end
-
 		return true
 	end
 
@@ -63,31 +67,41 @@ local function spawnAvari (px, py, id)
 end
 --------------------------------------------------------------------------------
 local function increaseLevel ()
+
 	level = level + 1
-	textLevel.text = "Level: "..tostring(level)
-	timer.performWithDelay( 6000, increaseLevel)
+
+	transition.to(levelProgression, {time=6000, x=50 + (100 * level)})
+
 	for i,v in ipairs(AvariState) do
-		print("State: " .. tostring(i).. ":" .. tostring(v))
+		--print("State: " .. tostring(i).. ":" .. tostring(v))
 	end
-	print("-----")
 	for i,v in ipairs(avariTimer) do
-		print("timer: " .. tostring(i)..":" .. tostring(v))
+		--print("timer: " .. tostring(i)..":" .. tostring(v))
 	end
-	print("----------------------------------")
+	print("Level: "..tostring(level))
+	
 end
 ----------------------------------------------------------------------------------------- create()
 function scene:create (event)
 
 	sceneGroup = self.view
-	
-	textLevel = display.newText(sceneGroup, "Level: "..tostring(level), 50 , 50, "Arial", 16)
-	timer.performWithDelay( 6000, increaseLevel)
+	bgShip = display.newImageRect(sceneGroup, "assets/ship_deck_bg.png", 960, 640)
+	bgShip.x, bgShip.y = fCenterX, fCenterY
+	levelProgression = display.newCircle(100,50,10)
+	levelProgression:setFillColor(1,0,0)
+	timer.performWithDelay( 6000, increaseLevel,0)
 
-	spawnAvari(-105,0,1)
-	spawnAvari(-35,0,2)
-	spawnAvari(35,0,3)
 
+	spawnAvari(-300,0,1)
+	spawnAvari(0,0,2)
+	spawnAvari(300,0,3)
+	Runtime:addEventListener("mouse", placementHelper)
 end
+
+function placementHelper( event )
+	print("CLICK: ".. tostring(event.x) .. "," .. tostring(event.y))
+end
+
 ----------------------------------------------------------------------------------------- show()
 function scene:show (event)
 
