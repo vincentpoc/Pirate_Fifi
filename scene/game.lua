@@ -53,15 +53,15 @@ local function spawnAvari (px, py, id)
 	end
 
 	function avariFixOnTap (event)
-
-		if not(AvariState[id].life == -1) then
-			if AvariState[id].life > 0 then
-				print(AvariState[id].life)
+		local vLife = math.floor(AvariState[id].life)
+		if not(vLife == -1) then
+			if vLife >= 0 then
+				print(vLife)
 				AvariState[id].life = AvariState[id].life - 1
-				if AvariState[id].life == 0 then
-					AvariState[id].life  = -1
-					local myTimer = timer.performWithDelay( math.random(1, 2) * 1000, function ()
-							AvariState[id].life = 2 + math.floor(level)
+				if vLife == 0 then
+					vLife  = -1
+					local myTimer = timer.performWithDelay( math.random(2, 4) * 1000, function ()
+							AvariState[id].life = 2 + math.floor(level) * 0.5
 							groupAvari.isVisible  = true
 							groupAvari:avariUpdate()
 						end )
@@ -81,20 +81,20 @@ end
 --------------------------------------------------------------------------------
 local function increaseLevel ()
 
-	transition.to( levelProgression, {time=1000, x=50 + (10 * level) } )
-	if level < 10 then level = level + 0.1 end
+	transition.to( levelProgression, {time=gameSpeed, x=50 + (100 * level) } )
+	if level < 10 then level = level + 0.5 end
 
-	shipDeckDamageDebug.xScale = 1.0 + (shipDeckDamage * 0.1)
+	shipDeckDamageDebug.xScale = 1.0 + (shipDeckDamage)
 
 	for i=#AvariState, 1, -1 do
 		AvariState[i].object:avariUpdate()
 		local vLife = AvariState[i].life
 		if vLife > gameCriticLevel then
-			print("WARNING")
+			shipDeckDamage = shipDeckDamage + 0.1
 		end
 		---Ship Dammage with max limit
 		if vLife > 0 and vLife < gameCriticMaxLevel then
-			AvariState[i].life = AvariState[i].life + 1
+			AvariState[i].life = AvariState[i].life + level * 0.1
 		end
 	end
 
@@ -139,7 +139,7 @@ function scene:create (event)
 	shipDeckDamageDebug.anchorX = 0
 	levelProgression = display.newCircle(50,50,10)
 	levelProgression:setFillColor(1,0,0)
-	timer.performWithDelay( 1000, increaseLevel,0)
+	timer.performWithDelay( gameSpeed, increaseLevel,0)
 
 end
 

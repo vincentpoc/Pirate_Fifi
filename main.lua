@@ -4,9 +4,9 @@ local composer = require ("composer")
 fCenterX, fCenterY  = display.contentCenterX, display.contentCenterY
 fWidth, fHeight = display.contentWidth, display.contentHeight
 
-gameCriticLevel = 5
+gameCriticLevel = 8
 gameCriticMaxLevel = 10
-
+gameSpeed = 2000
 -- Hide status bar
 display.setStatusBar (display.HiddenStatusBar)
 
