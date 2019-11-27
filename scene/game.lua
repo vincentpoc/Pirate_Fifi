@@ -79,7 +79,7 @@ end
 function scene:create (event)
 
 	sceneGroup = self.view
-
+	
 	textLevel = display.newText(sceneGroup, "Level: "..tostring(level), 50 , 50, "Arial", 16)
 	timer.performWithDelay( 6000, increaseLevel)
 

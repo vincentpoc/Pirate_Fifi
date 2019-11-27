@@ -1,7 +1,8 @@
 --------------------- INIT --------------------------------------------------------------------
 local composer = require ("composer")
 
-fCenterX, fCenterY  = display.contentWidth  / 2, display.contentHeight / 2
+fCenterX, fCenterY  = display.contentCenterX, display.contentCenter
+fWidth, fHeight = display.contentWidth, display.contentHeight
 
 -- Hide status bar
 display.setStatusBar (display.HiddenStatusBar)
@@ -21,6 +22,3 @@ local options =
 }
 
 composer.gotoScene ("scene.menu")
-
-
------------------------------------------------------------------------------------------
