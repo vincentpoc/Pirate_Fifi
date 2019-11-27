@@ -1,7 +1,7 @@
 --------------------- INIT --------------------------------------------------------------------
 local composer = require ("composer")
 
-fCenterX, fCenterY  = display.contentCenterX, display.contentCenter
+fCenterX, fCenterY  = display.contentCenterX, display.contentCenterY
 fWidth, fHeight = display.contentWidth, display.contentHeight
 
 -- Hide status bar

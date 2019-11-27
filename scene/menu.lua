@@ -1,4 +1,5 @@
 local composer = require ("composer")
+
 local scene    = composer.newScene ()
 local menuGroup = display.newGroup()
 
