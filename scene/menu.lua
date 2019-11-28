@@ -22,7 +22,7 @@ function scene:create (event)
   --SKY--
   local skyGroup = display.newGroup()
   for i=0,3 do
-    local bgSky = display.newImageRect("assets/env_sky_02.png", 1024, 684)
+    local bgSky = display.newImageRect("assets/env_sky.png", 1024, 684)
     bgSky.x = 1024 * i
     skyGroup:insert(bgSky)
   end
@@ -46,21 +46,25 @@ function scene:create (event)
   uititle.x,uititle.y = fCenterX,fCenterY - 150
 
   local btGoToGame = display.newImageRect( "assets/ui_frame.png", 256, 128)
-  btGoToGame.x, btGoToGame.y = fCenterX, fCenterY + 100
-  local txGoToGame = display.newText("START", btGoToGame.x, btGoToGame.y, "Comic Sans MS", 60)
+  local txGoToGame = display.newText("START", 0, 0, "Comic Sans MS", 60)
   txGoToGame:setFillColor(1,1,0)
+  local btGroup = display.newGroup()
+  btGroup:insert(btGoToGame)
+  btGroup:insert(txGoToGame)
+  btGroup.x, btGroup.y = fCenterX, fCenterY + 100
 
   --STAGE--
   --menuGroup:insert(skyGroup)
   skyGroup:toBack()
   sceneGroup:insert(waveGroup)
-  sceneGroup:insert(btGoToGame)
-  sceneGroup:insert(txGoToGame)
+  sceneGroup:insert(btGroup)
   sceneGroup:insert(uititle)
   --sceneGroup:insert(menuGroup)
 
   --EVENT---
   function onTapGoToGame ( event )
+      transition.to(btGroup, {xScale = 1.2, yScale = 1.2, time=200, transition= easing.continuousLoop})
+     -- transition.to(btGroup, {xScale = 1, yScale = 1, time=100, delay=150})
       local options =
       {
           effect = "fade",
