@@ -71,28 +71,33 @@ function scene:create (event)
 
 	sceneGroup = self.view
 	-------------------------------------------------------------------------------------------------------------
-	local function spawnAvari (id)
-
+	local function spawnAvari (id,px,py,isRope)
+		
 		AvariState[id] = {life = -1, object}
-		local ropePos = {{793,343},{975, 423},{632,517},{265,492}}
-		-------------------------------- ROPE -----------------------------------------------
-		local ropeSheepOptions = {
-	        width = 236,
-	        height = 430,
-	        numFrames = 3,
-	        sheetContentWidth = 708,
-	        sheetContentHeight = 430
-	    }
-        local ropeAnchor = display.newImageRect("assets/rope_anchor.png",128,128)
-        ropeAnchor.x, ropeAnchor.y = ropePos[id][1]-10, ropePos[id][2]-10
-        local ropeSheet = graphics.newImageSheet( "assets/rope_state.png", ropeSheepOptions )
-        local rope = display.newSprite(ropeSheet, {name="rope", start=1, count=ropeSheepOptions.numFrames} )
-        rope:setFrame(1)
-        rope.anchorX, rope.anchorY = 1, 1
-        rope.yScale = 1.25
-        rope.x, rope.y = ropePos[id][1], ropePos[id][2]
-		gameStage:insert(ropeAnchor)
-		gameStage:insert(rope)
+		if isRope then
+			
+			-------------------------------- ROPE -----------------------------------------------
+			local ropeSheepOptions = {
+				width = 236,
+				height = 430,
+				numFrames = 3,
+				sheetContentWidth = 708,
+				sheetContentHeight = 430
+			}
+			local ropeAnchor = display.newImageRect("assets/rope_anchor.png",128,128)
+			ropeAnchor.x, ropeAnchor.y = px-10, py-10
+			local ropeSheet = graphics.newImageSheet( "assets/rope_state.png", ropeSheepOptions )
+			local rope = display.newSprite(ropeSheet, {name="rope", start=1, count=ropeSheepOptions.numFrames} )
+			rope:setFrame(1)
+			rope.anchorX, rope.anchorY = 1, 1
+			rope.yScale = 1.25
+			rope.x, rope.y = px, py
+			gameStage:insert(ropeAnchor)
+			gameStage:insert(rope)
+		else
+			local planks = display.newImageRect("assets/planks.png",128,128)
+			planks.x, planks.y = px,py
+		end
 		-------------------- ICON ---------------------------------
 		local iconSheepOptions =
 		{
@@ -105,8 +110,8 @@ function scene:create (event)
 		local iconSheet = graphics.newImageSheet( "assets/avari_icon.png", iconSheepOptions )
 		local buttonAvari = display.newSprite( iconSheet, {name="icon", start=1, count=iconSheepOptions.numFrames} )
 		buttonAvari:setFrame(2)
-		buttonAvari.isVisible  = false
-		buttonAvari.x, buttonAvari.y = ropePos[id][1], ropePos[id][2]
+		--buttonAvari.isVisible  = false
+		buttonAvari.x, buttonAvari.y = px, py
 		gameStage:insert(buttonAvari)
 		AvariState[id].object = buttonAvari
 		---------------------------------------------------------------------------------------------------------------
@@ -157,7 +162,7 @@ function scene:create (event)
 					timer.performWithDelay(300,function () fifi:setFrame(1) end )
 					buttonAvari:avariUpdate()
 				else
-					print("out of range")
+					---print("out of range")
 				end
 			end
 			return true
@@ -173,8 +178,13 @@ function scene:create (event)
     bgShip.x, bgShip.y = fCenterX, fCenterY
 	gameStage:insert(bgShip)
 	-------------------------------------------------
-	spawnAvari(1)
-	spawnAvari(2)
+	spawnAvari(5, 74,324+640, false)
+	spawnAvari(6, 296,284+640, false)
+	spawnAvari(7, 554,346+640, false)
+	spawnAvari(8, 736,286+640, false)
+	-------------------------------------------------
+	spawnAvari(1,793, 343,true)
+	spawnAvari(2,975, 423,true)
 	-------------------------------------------------
 	local fifiSheepOptions =
 	{
@@ -209,8 +219,8 @@ function scene:create (event)
     shipWheel.x,shipWheel.y = 102,488
 	gameStage:insert(shipWheel)
 	-------------------------------------------------
-	spawnAvari(3)
-	spawnAvari(4)
+	spawnAvari(3,632,517,true)
+	spawnAvari(4,265,492,true)
 	-------------------------------------------------need to display the wave
 	local UI = display.newGroup()
 	levelProgression = display.newCircle(sceneGroup,50,50,10)
@@ -220,17 +230,47 @@ function scene:create (event)
 	local swapStage = display.newImageRect(sceneGroup,"assets/arrow.png", 128, 128)
 	swapStage.x, swapStage.y = 0, 100
 	UI:insert(swapStage)
+	local swapStageState = "UP"
+
 	function swapStageOnTap ()
-		if (math.round(gameStage.y)) == 0 then
-			transition.to( swapStage, {time=500, rotation = 180, transition=easing.inOutElastic})
-			transition.to( gameStage, {time=500, y=-650})
-		else
-			transition.to( swapStage, {time=500,rotation = 0, transition=easing.inOutElastic})
-			transition.to( gameStage, {time=500,y=0})
+		print(swapStageState)
+
+		if swapStageState == "UP" then
+			transition.to( swapStage, {time=500, rotation = 180, transition=easing.inOutElastic, onComplete = swapTransition})
+			transition.to( gameStage, {time=500, y=-640})
+			timer.performWithDelay(400,function () 
+				fifi.x,fifi.y = 1100,1000
+				fifi:setFrame(2)
+				transition.to( fifi, {time = 600, x=852, y=1144, onComplete = function()
+					fifi:setFrame(1)
+				end})
+			end)
+			
+			swapStageState = "goingDown"
+
+		elseif swapStageState == "DOWN" then
+			transition.to( swapStage, {time=500,rotation = 0, transition=easing.inOutElastic,  onComplete = swapTransition})
+			transition.to( gameStage, {time=400,y=0})
+			timer.performWithDelay(400,function () 
+				fifi.x, fifi.y = 1100,504
+				fifi:setFrame(2)
+				transition.to( fifi, {time = 500, x=752, y=504, onComplete = function()
+					fifi:setFrame(1)
+				end} )
+			end)
+			
+			swapStageState = "goingUp"
 		end
-		--, onComplete= function () swapStage:addEventListener("tap", swapStageOnTap) end
-		--swapStage:removeEventListener("tap",swapStageOnTap)
 	end
+
+	function swapTransition ()
+		if swapStageState == "goingDown" then
+			swapStageState = "DOWN"
+		elseif swapStageState == "goingUp" then
+			swapStageState = "UP"
+		end
+	end
+
 	swapStage:addEventListener("tap", swapStageOnTap)
 
 	------------------------------------------

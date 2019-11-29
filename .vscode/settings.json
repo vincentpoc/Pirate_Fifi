@@ -2,9 +2,13 @@
     "Lua.diagnostics.globals": [
         "display",
         "timer",
-        "transition"
+        "transition",
+        "graphics",
+        "object",
+        "Runtime"
     ],
     "Lua.diagnostics.disable": [
-        "lowercase-global"
+        "lowercase-global",
+        "undefined-global"
     ]
 }
