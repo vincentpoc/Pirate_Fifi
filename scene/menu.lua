@@ -30,6 +30,10 @@ function scene:create (event)
   --skyGroup:scale(0.5,0.5)
   cycleTrans(skyGroup,3.0,0)
 
+  --SHIP--
+  local ship = display.newImageRect("assets/ship.png",512,512)
+  ship.x,ship.y = fCenterX, fCenterY + 70
+  ship.alpha = 0.75
   --WAVE--
   local waveGroup = display.newGroup()
   for i=0, 4 do
@@ -56,6 +60,7 @@ function scene:create (event)
   --STAGE--
   --menuGroup:insert(skyGroup)
   skyGroup:toBack()
+  sceneGroup:insert(ship)
   sceneGroup:insert(waveGroup)
   sceneGroup:insert(btGroup)
   sceneGroup:insert(uititle)
@@ -63,7 +68,7 @@ function scene:create (event)
 
   --EVENT---
   function onTapGoToGame ( event )
-      transition.to(btGroup, {xScale = 1.2, yScale = 1.2, time=200, transition= easing.continuousLoop})
+      transition.to(btGroup, {xScale = 1.4, yScale = 1.4, time=200, transition= easing.continuousLoop})
       local options =
       {
           effect = "fade",
