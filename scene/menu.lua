@@ -64,13 +64,13 @@ function scene:create (event)
   --EVENT---
   function onTapGoToGame ( event )
       transition.to(btGroup, {xScale = 1.2, yScale = 1.2, time=200, transition= easing.continuousLoop})
-     -- transition.to(btGroup, {xScale = 1, yScale = 1, time=100, delay=150})
       local options =
       {
           effect = "fade",
-          time = 500,
+          time = 500
       }
-      composer.gotoScene( "scene.game", options )
+      --composer.gotoScene( "scene.game", options )
+      composer.gotoScene( "scene.intro", options )
       return true
   end
   btGoToGame:addEventListener("tap", onTapGoToGame )

@@ -11,7 +11,7 @@ function scene:create (event)
 
   function placementHelper( event )
         --if event.isPrimaryButtonDown then
-  	       print( "CLICK: ".. tostring(math.round(event.x)) .. "," .. tostring(math.round(event.y)) )
+			 print( "CLICK: ".. tostring(math.round(event.x)) .. "," .. tostring(math.round(event.y)) )
         --end
   end
   Runtime:addEventListener("tap", placementHelper)

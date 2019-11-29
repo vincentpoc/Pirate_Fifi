@@ -24,7 +24,7 @@ local function increaseLevel ()
 		local vLife = AvariState[i].life
 		local vObject = AvariState[i].object
 		if vLife > 0 and vLife < gameCriticMaxLevel then ---if avari active ncreased avari state
-			AvariState[i].life = AvariState[i].life + 1
+			AvariState[i].life = AvariState[i].life + 0.5
 			avariCount = avariCount + 1
 			print("increase avari: "..tostring(vLife))
 		elseif vLife <= 0 and vLife > -1 then -- if avari fixed start cooldown
@@ -74,8 +74,8 @@ function scene:create (event)
 	local function spawnAvari (id,px,py,isRope)
 		
 		AvariState[id] = {life = -1, object}
+		local rope
 		if isRope then
-			
 			-------------------------------- ROPE -----------------------------------------------
 			local ropeSheepOptions = {
 				width = 236,
@@ -87,7 +87,7 @@ function scene:create (event)
 			local ropeAnchor = display.newImageRect("assets/rope_anchor.png",128,128)
 			ropeAnchor.x, ropeAnchor.y = px-10, py-10
 			local ropeSheet = graphics.newImageSheet( "assets/rope_state.png", ropeSheepOptions )
-			local rope = display.newSprite(ropeSheet, {name="rope", start=1, count=ropeSheepOptions.numFrames} )
+			rope = display.newSprite(ropeSheet, {name="rope", start=1, count=ropeSheepOptions.numFrames} )
 			rope:setFrame(1)
 			rope.anchorX, rope.anchorY = 1, 1
 			rope.yScale = 1.25
@@ -97,6 +97,8 @@ function scene:create (event)
 		else
 			local planks = display.newImageRect("assets/planks.png",128,128)
 			planks.x, planks.y = px,py
+			planks.rotation = math.random(0, 360)
+			gameStage:insert(planks)
 		end
 		-------------------- ICON ---------------------------------
 		local iconSheepOptions =
@@ -110,7 +112,7 @@ function scene:create (event)
 		local iconSheet = graphics.newImageSheet( "assets/avari_icon.png", iconSheepOptions )
 		local buttonAvari = display.newSprite( iconSheet, {name="icon", start=1, count=iconSheepOptions.numFrames} )
 		buttonAvari:setFrame(2)
-		--buttonAvari.isVisible  = false
+		buttonAvari.isVisible  = false
 		buttonAvari.x, buttonAvari.y = px, py
 		gameStage:insert(buttonAvari)
 		AvariState[id].object = buttonAvari
@@ -126,12 +128,14 @@ function scene:create (event)
 				buttonAvari:setFrame(1)
 			end
 			----
-			if vLife >= gameCriticLevel - 2 then
-				rope:setFrame(3)
-			elseif vLife > 2 then
-				rope:setFrame(2)
-			elseif vLife <= 0 then
-				rope:setFrame(1)
+			if isRope then
+				if vLife >= gameCriticLevel - 2 then
+					rope:setFrame(3)
+				elseif vLife > 2 then
+					rope:setFrame(2)
+				elseif vLife <= 0 then
+					rope:setFrame(1)
+				end
 			end
 			----
 			if vLife > -1 then buttonAvari.isVisible = true else buttonAvari.isVisible = false end
@@ -147,7 +151,12 @@ function scene:create (event)
 				else
 					fifi:setFrame(1)
 				end
-				fifiMove = transition.to(fifi, {time=500, x=buttonAvari.x - 50, y=buttonAvari.y + 50, transition= easing.intSine})
+				-----
+				if isRope then
+					fifiMove = transition.to(fifi, {time=500, x=buttonAvari.x - 50, y=buttonAvari.y + 50, transition= easing.intSine})
+				else
+					fifiMove = transition.to(fifi, {time=500, x=buttonAvari.x, transition= easing.intSine})
+				end
 				--print(tostring(math.floor((fifi.x + 50) * 0.01)) .." / ".. tostring(math.floor(buttonAvari.x * 0.01)))
 				if (buttonAvari.x - fifi.x) > 0 then
 					fifi.xScale = 0.8
@@ -156,7 +165,7 @@ function scene:create (event)
 				end
 				if math.floor((fifi.x + 50) * 0.01) == math.floor(buttonAvari.x * 0.01) then
 					AvariState[id].life = AvariState[id].life - 1
-					transition.to(buttonAvari, {xScale = 1.2, yScale = 1.2, time=100, transition= easing.continuousLoop})
+					transition.to(buttonAvari, {xScale = 1.3, yScale = 1.3, time=100, transition= easing.continuousLoop})
 					fifi.xScale = 0.8
 					fifi:setFrame(3)
 					timer.performWithDelay(300,function () fifi:setFrame(1) end )
@@ -178,10 +187,10 @@ function scene:create (event)
     bgShip.x, bgShip.y = fCenterX, fCenterY
 	gameStage:insert(bgShip)
 	-------------------------------------------------
-	spawnAvari(5, 74,324+640, false)
-	spawnAvari(6, 296,284+640, false)
-	spawnAvari(7, 554,346+640, false)
-	spawnAvari(8, 736,286+640, false)
+	spawnAvari(5, 74,314+640, false)
+	spawnAvari(6, 296,304+640, false)
+	spawnAvari(7, 554,316+640, false)
+	spawnAvari(8, 736,306+640, false)
 	-------------------------------------------------
 	spawnAvari(1,793, 343,true)
 	spawnAvari(2,975, 423,true)
@@ -236,20 +245,19 @@ function scene:create (event)
 		print(swapStageState)
 
 		if swapStageState == "UP" then
-			transition.to( swapStage, {time=500, rotation = 180, transition=easing.inOutElastic, onComplete = swapTransition})
-			transition.to( gameStage, {time=500, y=-640})
+			transition.to( swapStage, {time=400, rotation = 180, transition=easing.inOutElastic, onComplete = swapTransition})
+			transition.to( gameStage, {time=400, y=-640})
 			timer.performWithDelay(400,function () 
 				fifi.x,fifi.y = 1100,1000
 				fifi:setFrame(2)
-				transition.to( fifi, {time = 600, x=852, y=1144, onComplete = function()
+				transition.to( fifi, {time = 500, x=852, y=1144, onComplete = function()
 					fifi:setFrame(1)
 				end})
 			end)
-			
 			swapStageState = "goingDown"
 
 		elseif swapStageState == "DOWN" then
-			transition.to( swapStage, {time=500,rotation = 0, transition=easing.inOutElastic,  onComplete = swapTransition})
+			transition.to( swapStage, {time=400,rotation = 0, transition=easing.inOutElastic,  onComplete = swapTransition})
 			transition.to( gameStage, {time=400,y=0})
 			timer.performWithDelay(400,function () 
 				fifi.x, fifi.y = 1100,504
@@ -258,7 +266,6 @@ function scene:create (event)
 					fifi:setFrame(1)
 				end} )
 			end)
-			
 			swapStageState = "goingUp"
 		end
 	end
@@ -283,12 +290,6 @@ function tutorialRope ()
 	if AvariState[1].life <= 0 then
 		AvariState[1].life = -1
 		AvariState[1].object:avariUpdate()
-		--dady jump
-		local captainDad_yPos = captainDad.y
-		captainDad:setFrame(2)
-		transition.to(captainDad, {y = captainDad_yPos - 150, time=100, transition= easing.outSine})
-		transition.to(captainDad, {y = captainDad_yPos, time=150, delay=200, transition= easing.inSine})
-		captainDad:setFrame(1)
 		timer.performWithDelay( gameSpeed, increaseLevel,0)
 	else
 		timer.performWithDelay(gameSpeed * 0.5, tutorialRope)
@@ -302,12 +303,23 @@ end
 function scene:show (event)
 	local sceneGroup = self.view
 	if (event.phase == "did") then
+
 		AvariState[1].life = 2
 
 		fifiMove = transition.to(fifi, {time=500, x=352, y=504, transition= easing.intSine})
 		timer.performWithDelay(1000, function()
+
 			AvariState[1].object:avariUpdate()
+
+			--dady jump
+			local captainDad_yPos = captainDad.y
+			captainDad:setFrame(2)
+			transition.to(captainDad, {y = captainDad_yPos - 100, time=100, transition= easing.outSine})
+			transition.to(captainDad, {y = captainDad_yPos, time=150, delay=200, transition= easing.inSine})
+			timer.performWithDelay( 250, function () captainDad:setFrame(1) end)
+
 			timer.performWithDelay(gameSpeed * 0.5, tutorialRope)
+
 		 end)
 		--
 	end
