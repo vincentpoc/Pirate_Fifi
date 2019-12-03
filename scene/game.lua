@@ -13,6 +13,7 @@ local shipDeckDamageDebug
 local captainDad
 local fifi
 local fifiMove
+local wave
 local gameStage = display.newGroup()
 -------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------
@@ -63,6 +64,7 @@ local function increaseLevel ()
 	else
 		transition.to(levelProgression, {xScale = 1.5, yScale = 1.5, time=100, delay=50, transition= easing.continuousLoop, iterations=2})
 	end
+	transition.to(wave,{time=100000,x=1200})
 end
 -------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------- create()
@@ -143,6 +145,7 @@ function scene:create (event)
 		--------------------------------------------------------------------------------------------------------
 		--------------------------------------------------------------------------
 		function avariOnTap (event)
+			
 			local vLife = math.floor(AvariState[id].life)
 			if vLife >= 0 then
 				if not(fifiMove == nil) then
@@ -152,18 +155,21 @@ function scene:create (event)
 					fifi:setFrame(1)
 				end
 				-----
+				local ropeOffset
 				if isRope then
+					ropeOffset = 50
 					fifiMove = transition.to(fifi, {time=500, x=buttonAvari.x - 50, y=buttonAvari.y + 50, transition= easing.intSine})
 				else
+					ropeOffset = 0
 					fifiMove = transition.to(fifi, {time=500, x=buttonAvari.x, transition= easing.intSine})
 				end
-				--print(tostring(math.floor((fifi.x + 50) * 0.01)) .." / ".. tostring(math.floor(buttonAvari.x * 0.01)))
+				print(tostring(math.floor((fifi.x + 50) * 0.01)) .." / ".. tostring(math.floor(buttonAvari.x * 0.01)))
 				if (buttonAvari.x - fifi.x) > 0 then
 					fifi.xScale = 0.8
 				else
 					fifi.xScale = -0.8
 				end
-				if math.floor((fifi.x + 50) * 0.01) == math.floor(buttonAvari.x * 0.01) then
+				if math.floor((fifi.x + ropeOffset) * 0.01) == math.floor(buttonAvari.x * 0.01) then
 					AvariState[id].life = AvariState[id].life - 1
 					transition.to(buttonAvari, {xScale = 1.3, yScale = 1.3, time=100, transition= easing.continuousLoop})
 					fifi.xScale = 0.8
@@ -171,7 +177,7 @@ function scene:create (event)
 					timer.performWithDelay(300,function () fifi:setFrame(1) end )
 					buttonAvari:avariUpdate()
 				else
-					---print("out of range")
+					print("out of range")
 				end
 			end
 			return true
@@ -187,10 +193,10 @@ function scene:create (event)
     bgShip.x, bgShip.y = fCenterX, fCenterY
 	gameStage:insert(bgShip)
 	-------------------------------------------------
-	spawnAvari(5, 74,314+640, false)
-	spawnAvari(6, 296,304+640, false)
-	spawnAvari(7, 554,316+640, false)
-	spawnAvari(8, 736,306+640, false)
+	spawnAvari(5, 74,290+640, false)
+	spawnAvari(6, 296,290+640, false)
+	spawnAvari(7, 554,290+640, false)
+	spawnAvari(8, 736,290+640, false)
 	-------------------------------------------------
 	spawnAvari(1,793, 343,true)
 	spawnAvari(2,975, 423,true)
@@ -232,9 +238,15 @@ function scene:create (event)
 	spawnAvari(4,265,492,true)
 	-------------------------------------------------need to display the wave
 	local UI = display.newGroup()
-	levelProgression = display.newCircle(sceneGroup,50,50,10)
-	levelProgression:setFillColor(1,0,0)
+	levelProgression = display.newImageRect("assets/ship_icon.png",64,64)
+	levelProgression.x, levelProgression.y = 0,30
+	--levelProgression:setFillColor(1,0,0)
 	UI:insert(levelProgression)
+
+	wave = display.newRect(0,0,20,50)
+	wave:setFillColor(0,0.25,1)
+	wave.x,wave.y = -100, 20
+	UI:insert(wave)
 	-------------------------------------------------
 	local swapStage = display.newImageRect(sceneGroup,"assets/arrow.png", 128, 128)
 	swapStage.x, swapStage.y = 0, 100
@@ -283,44 +295,89 @@ function scene:create (event)
 	------------------------------------------
 	sceneGroup:insert(gameStage)
 	sceneGroup:insert(UI)
+	--gameStage.xScale, gameStage.yScale = 0.85, 0.85
+	--gameStage.x, gameStage.y = 0,100
 end
 -------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------
-function tutorialRope ()
-	if AvariState[1].life <= 0 then
-		AvariState[1].life = -1
-		AvariState[1].object:avariUpdate()
-		timer.performWithDelay( gameSpeed, increaseLevel,0)
-	else
-		timer.performWithDelay(gameSpeed * 0.5, tutorialRope)
-	end
-end
-function tutoCaptainSay ()
-	local philacter = display.newImageRect("philacter.png")
-end
+
 -------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------
 function scene:show (event)
+
 	local sceneGroup = self.view
+	local tapTutorial
+	function tutorialRope ()
+		if AvariState[1].life <= 0 then
+			AvariState[1].life = -1
+			AvariState[1].object:avariUpdate()
+			timer.performWithDelay( gameSpeed, increaseLevel,0)
+		else
+			timer.performWithDelay(gameSpeed * 0.5, tutorialRope)
+		end
+	end
+
 	if (event.phase == "did") then
 
-		AvariState[1].life = 2
+		-------------------------------------------------
+		philacter = display.newImageRect(sceneGroup,"assets/philacter.png",650 ,256)
+		philacter.anchorX, philacter.anchorY = 0,0
+		
+		-------------------------------------------------
+		saidText = display.newText(sceneGroup,"", 500, 250, "Comic Sans MS", 35)
+		saidText:setFillColor(0,0,0)
+		philacter.x, philacter.y = -100,0
+		saidText.x,saidText.y = 250, 100
+		saidText.text = "AAAAH!\nLa vague est juste derriere nous!"
+		--dady jump
+		local captainDad_yPos = captainDad.y
+		captainDad:setFrame(2)
+		transition.to(captainDad, {y = captainDad_yPos - 100, time=100, transition= easing.outSine})
+		transition.to(captainDad, {y = captainDad_yPos, time=150, delay=200, transition= easing.inSine})
+		timer.performWithDelay( 250, function () captainDad:setFrame(1) end)
+		local tapTutoPhase = 0
+		function tapTutorial ()
 
+			if tapTutoPhase == 0 then
+				saidText.text = "S'il y a trop d'avari\n sur le bateau"
+			elseif tapTutoPhase == 1 then
+				saidText.text = "Le bateau s'arretera\net la vague nous rattrapera"
+			elseif tapTutoPhase == 2 then
+				saidText.text = "Heureusement je suis un loup de mer\nJe connais tous les noeuds marin"
+				
+			elseif tapTutoPhase == 3 then
+				Runtime:removeEventListener("tap", tapStory)
+				AvariState[1].life = 2
+				AvariState[1].object:avariUpdate()
+				timer.performWithDelay(500, function()
+					--dady jump
+					local captainDad_yPos = captainDad.y
+					captainDad:setFrame(2)
+					transition.to(captainDad, {y = captainDad_yPos - 100, time=100, transition= easing.outSine})
+					transition.to(captainDad, {y = captainDad_yPos, time=150, delay=200, transition= easing.inSine})
+					timer.performWithDelay( 250, function () captainDad:setFrame(1) end)
+				end)
+				timer.performWithDelay(1000, function()
+					philacter.isVisible = true
+					saidText.isVisible = true
+					saidText.text = "Sauf celui-ci ..."
+				end)
+				timer.performWithDelay(3000, function()
+					saidText.text = "Est-ce que tu pourrais refaire\nce noeud?"
+					timer.performWithDelay(gameSpeed * 0.5, tutorialRope)
+				end)
+				timer.performWithDelay(6000, function()
+					philacter.isVisible = false
+					saidText.isVisible = false
+				end)
+			end
+			tapTutoPhase = tapTutoPhase + 1
+
+		end
+		Runtime:addEventListener("tap", tapTutorial)
+		-------------------------------------------------
 		fifiMove = transition.to(fifi, {time=500, x=352, y=504, transition= easing.intSine})
-		timer.performWithDelay(1000, function()
-
-			AvariState[1].object:avariUpdate()
-
-			--dady jump
-			local captainDad_yPos = captainDad.y
-			captainDad:setFrame(2)
-			transition.to(captainDad, {y = captainDad_yPos - 100, time=100, transition= easing.outSine})
-			transition.to(captainDad, {y = captainDad_yPos, time=150, delay=200, transition= easing.inSine})
-			timer.performWithDelay( 250, function () captainDad:setFrame(1) end)
-
-			timer.performWithDelay(gameSpeed * 0.5, tutorialRope)
-
-		 end)
+		
 		--
 	end
 end
