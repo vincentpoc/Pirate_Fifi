@@ -1,7 +1,7 @@
 local composer = require ("composer")
 local scene    = composer.newScene ()
 
-local fifi 
+local fifi
 local captainDad
 local philacter
 local saidText
@@ -14,24 +14,30 @@ function scene:create (event)
 
     local fifiSheepOptions =
 	{
-		numFrames =3,
-		width = 160, height = 256,
-		sheetContentWidth = 480,sheetContentHeight = 256
+		numFrames =4,
+		width = 186, height = 256,
+		sheetContentWidth = 373,sheetContentHeight = 512
 	}
-	local fifiSheet = graphics.newImageSheet( "assets/fifi.png", fifiSheepOptions )
-	fifi = display.newSprite(sceneGroup, fifiSheet, {name="fifi", start=1, count=fifiSheepOptions.numFrames} )
-	fifi:setFrame(1)
+	local fifiSheet = graphics.newImageSheet( "assets_qrb/fifi.png", fifiSheepOptions )
+    local fifiSqData =
+    {
+        {name = "stand", frames = {1,2}, time = 500, loopcount = 0},
+        {name = "walk", frames = {3,1,3,2}, time = 600, loopcount = 0},
+    }
+	fifi = display.newSprite(sceneGroup, fifiSheet, fifiSqData )
+    fifi:setSequence("walk")
+    fifi:play()
     fifi.anchorX, fifi.anchorY = 0.5,1
-    fifi.xScale, fifi.yScale = 0.8,0.8
-    fifi.x, fifi.y = 1100,604
+    fifi.xScale, fifi.yScale = -0.8,0.8
+    fifi.x, fifi.y = 1300,604
     -------------------------------------------------
-    
-	local captainDadSheepOptions =
-	{
-		numFrames =2,
-		width = 256, height = 377,
-		sheetContentWidth = 512,sheetContentHeight = 377
-	}
+
+    local captainDadSheepOptions =
+    {
+        numFrames =2,
+        width = 256, height = 377,
+        sheetContentWidth = 512,sheetContentHeight = 377
+    }
 	local captainDadSheet = graphics.newImageSheet( "assets/king.png", captainDadSheepOptions )
 	captainDad = display.newSprite(sceneGroup, captainDadSheet, {name="fifi", start=1, count=captainDadSheepOptions.numFrames} )
 	captainDad:setFrame(1)
@@ -65,14 +71,14 @@ function scene:show (event)
             philacter.x, philacter.y = 950, 150
             saidText.x,saidText.y = 600, 250
         end
-    
+
         function dadTalk ()
             captainDad.xScale = 0.75
             philacter.xScale = 1
             philacter.x, philacter.y = 100, 100
             saidText.x,saidText.y = 340,208
         end
-    
+
         function tapStory( event )
             if storyPhase == 0 then
                 philacter.isVisible = true
@@ -113,8 +119,10 @@ function scene:show (event)
                 philacter.isVisible = false
                 saidText.isVisible = false
                 Runtime:removeEventListener("tap", tapStory)
-                transition.to( captainDad, {time=800,x=1100})
-                transition.to( fifi, {time=400,x=1100, onComplete = function ()
+                transition.to( captainDad, {time=1200,x=1300})
+                transition.to( fifi, {time=800,x=1300, onComplete = function ()
+                fifi:stop()
+                fifi:setFrame(3)
                     local options =
                     {
                         effect = "fade",
@@ -123,16 +131,18 @@ function scene:show (event)
                     composer.gotoScene( "scene.game", options )
                 end})
             end
-    
+
             --if event.isPrimaryButtonDown then
                print( "CLICK: ".. tostring(math.round(event.x)) .. "," .. tostring(math.round(event.y)) )
             --end
             storyPhase = storyPhase + 1
             return true
         end
-    
-        transition.to(fifi,{time=400,x=754, onComplete = function ()
+
+        transition.to(fifi,{time=800,x=554, onComplete = function ()
         Runtime:addEventListener("tap", tapStory)
+        fifi:setSequence("stand")
+        fifi:play()
       end})
 
 	end

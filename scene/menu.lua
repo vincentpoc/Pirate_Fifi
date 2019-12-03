@@ -31,9 +31,12 @@ function scene:create (event)
   cycleTrans(skyGroup,3.0,0)
 
   --SHIP--
-  local ship = display.newImageRect("assets/ship.png",512,512)
-  ship.x,ship.y = fCenterX, fCenterY + 70
-  ship.alpha = 0.75
+  local ship = display.newImageRect("assets_qrb/ship_menu.png",512,512)
+  ship.anchorX, ship.anchorY = 0.75 , 1
+  ship.x,ship.y = fCenterX + 100, fCenterY + 300
+  ship.rotation = -5
+  ship.alpha = 0.85
+ transition.to(ship,{time = 2000, y= ship.y + 50, rotation=5, transition=easing.continuousLoop,iterations =0})
   --WAVE--
   local waveGroup = display.newGroup()
   for i=0, 4 do
@@ -55,7 +58,7 @@ function scene:create (event)
   local btGroup = display.newGroup()
   btGroup:insert(btGoToGame)
   btGroup:insert(txGoToGame)
-  btGroup.x, btGroup.y = fCenterX, fCenterY + 100
+  btGroup.x, btGroup.y = fWidth - 160 , fHeight - 90
 
   --STAGE--
   --menuGroup:insert(skyGroup)
