@@ -9,8 +9,10 @@ local saidText
 function scene:create (event)
 
     local sceneGroup = self.view
-    local bgSet = display.newImageRect(sceneGroup,"assets/house.png",1334,750)
-    bgSet.x,bgSet.y = fCenterX,fCenterY
+    local bgSet = display.newImageRect(sceneGroup,"assets_qrb/house.png",717,577)
+    --bgSet.anchorX, bgSet.anchorY = 0,1
+    bgSet.xScale,bgSet.yScale = 1.25, 1.25
+    bgSet.x,bgSet.y = fCenterX-120,fCenterY-90
 
     local fifiSheet = graphics.newImageSheet( "assets_qrb/fifi.png", fifiSheepOptions )
 	fifi = display.newSprite(sceneGroup, fifiSheet, fifiSqData )

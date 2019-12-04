@@ -5,7 +5,7 @@ fCenterX, fCenterY  = display.contentCenterX, display.contentCenterY
 fWidth, fHeight = display.contentWidth, display.contentHeight
 
 gameCriticLevel = 6
-gameCriticMaxLevel = 8
+gameCriticMaxLevel = 10
 gameSpeed = 2000
 -- Hide status bar
 display.setStatusBar (display.HiddenStatusBar)

@@ -34,7 +34,7 @@ local function increaseLevel ()
 		elseif vLife <= -1 then --end of the cooldown fixed state
 			if avariPick == i then
 				print("New avari: "..tostring(vLife))
-				AvariState[i].life = 2 --set a new avari
+				AvariState[i].life = 4 --set a new avari
 			else
 				print("wait for pick: "..tostring(vLife))
 				AvariState[i].life = -1 --hide fixed icon
@@ -188,7 +188,7 @@ function scene:create (event)
 	----------------------------------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------
-	local bgShip = display.newImageRect("assets/ship_deck_bg.png", 1152, 1280)
+	local bgShip = display.newImageRect("assets_qrb/ship_deck.png", 1152, 1280)
     bgShip.anchorX, bgShip.anchorY = 0.5, 0.25
     bgShip.x, bgShip.y = fCenterX, fCenterY
 	gameStage:insert(bgShip)
@@ -215,9 +215,9 @@ function scene:create (event)
 	captainDad = display.newSprite(sceneGroup, captainDadSheet, captainDadSqData )
     captainDad:setSequence("stand")
     captainDad:play()
-    captainDad.anchorX, captainDad.anchorY = 1.0,1.0
+    captainDad.anchorX, captainDad.anchorY = 0.5,1.0
     captainDad.x, captainDad.y = 110,460
-    captainDad.xScale,captainDad.yScale = 0.75,0.75
+    --captainDad.xScale,captainDad.yScale = 0.75,0.75
 	gameStage:insert(captainDad)
 	-------------------------------------------------
     local shipWheel = display.newImageRect("assets/wheel.png",128,256)
@@ -240,7 +240,7 @@ function scene:create (event)
 	UI:insert(wave)
 	-------------------------------------------------
 	local swapStage = display.newImageRect(sceneGroup,"assets/arrow.png", 128, 128)
-	swapStage.x, swapStage.y = 0, 100
+	swapStage.x, swapStage.y = 50, 100
 	UI:insert(swapStage)
 	local swapStageState = "UP"
 
@@ -315,10 +315,10 @@ function scene:show (event)
 		philacter.anchorX, philacter.anchorY = 0,0
 
 		-------------------------------------------------
-		saidText = display.newText(sceneGroup,"", 500, 250, "Comic Sans MS", 35)
+		saidText = display.newText(sceneGroup,"", 500, 250, "Comic Sans MS", 30)
 		saidText:setFillColor(0,0,0)
-		philacter.x, philacter.y = -100,0
-		saidText.x,saidText.y = 250, 100
+		philacter.x, philacter.y = 50,0
+		saidText.x,saidText.y = 350, 100
 		saidText.text = "AAAAH!\nLa vague est juste derriere nous!"
 		--dady jump
 		local captainDad_yPos = captainDad.y
@@ -353,11 +353,11 @@ function scene:show (event)
 					saidText.isVisible = true
 					saidText.text = "Sauf celui-ci ..."
 				end)
-				timer.performWithDelay(3000, function()
+				timer.performWithDelay(2000, function()
 					saidText.text = "Est-ce que tu pourrais refaire\nce noeud?"
 					timer.performWithDelay(gameSpeed * 0.5, tutorialRope)
 				end)
-				timer.performWithDelay(6000, function()
+				timer.performWithDelay(4000, function()
 					philacter.isVisible = false
 					saidText.isVisible = false
 				end)
