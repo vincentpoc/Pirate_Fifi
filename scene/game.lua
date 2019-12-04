@@ -74,7 +74,7 @@ function scene:create (event)
 	sceneGroup = self.view
 	-------------------------------------------------------------------------------------------------------------
 	local function spawnAvari (id,px,py,isRope)
-		
+
 		AvariState[id] = {life = -1, object}
 		local rope
 		if isRope then
@@ -145,7 +145,7 @@ function scene:create (event)
 		--------------------------------------------------------------------------------------------------------
 		--------------------------------------------------------------------------
 		function avariOnTap (event)
-			
+
 			local vLife = math.floor(AvariState[id].life)
 			if vLife >= 0 then
 				if not(fifiMove == nil) then
@@ -201,29 +201,20 @@ function scene:create (event)
 	spawnAvari(1,793, 343,true)
 	spawnAvari(2,975, 423,true)
 	-------------------------------------------------
-	local fifiSheepOptions =
-	{
-		numFrames =3,
-		width = 160, height = 256,
-		sheetContentWidth = 480,sheetContentHeight = 256
-	}
-	local fifiSheet = graphics.newImageSheet( "assets/fifi.png", fifiSheepOptions )
-	fifi = display.newSprite( fifiSheet, {name="fifi", start=1, count=fifiSheepOptions.numFrames} )
-	fifi:setFrame(1)
+	local fifiSheet = graphics.newImageSheet( "assets_qrb/fifi.png", fifiSheepOptions )
+	fifi = display.newSprite(sceneGroup, fifiSheet, fifiSqData )
+    fifi:setSequence("walk")
+    fifi:play()
     fifi.anchorX, fifi.anchorY = 0.5,1
     fifi.xScale, fifi.yScale = 0.8,0.8
     fifi.x, fifi.y = 752,504
 	gameStage:insert(fifi)
 	-------------------------------------------------
-	local captainDadSheepOptions =
-	{
-		numFrames =2,
-		width = 256, height = 377,
-		sheetContentWidth = 512,sheetContentHeight = 377
-	}
-	local captainDadSheet = graphics.newImageSheet( "assets/king.png", captainDadSheepOptions )
-	captainDad = display.newSprite( captainDadSheet, {name="fifi", start=1, count=captainDadSheepOptions.numFrames} )
-	captainDad:setFrame(1)
+	-------------------------------------------------
+    local captainDadSheet = graphics.newImageSheet( "assets_qrb/pirate_dad.png", captainDadSheepOptions )
+	captainDad = display.newSprite(sceneGroup, captainDadSheet, captainDadSqData )
+    captainDad:setSequence("stand")
+    captainDad:play()
     captainDad.anchorX, captainDad.anchorY = 1.0,1.0
     captainDad.x, captainDad.y = 110,460
     captainDad.xScale,captainDad.yScale = 0.75,0.75
@@ -259,7 +250,7 @@ function scene:create (event)
 		if swapStageState == "UP" then
 			transition.to( swapStage, {time=400, rotation = 180, transition=easing.inOutElastic, onComplete = swapTransition})
 			transition.to( gameStage, {time=400, y=-640})
-			timer.performWithDelay(400,function () 
+			timer.performWithDelay(400,function ()
 				fifi.x,fifi.y = 1100,1000
 				fifi:setFrame(2)
 				transition.to( fifi, {time = 500, x=852, y=1144, onComplete = function()
@@ -271,7 +262,7 @@ function scene:create (event)
 		elseif swapStageState == "DOWN" then
 			transition.to( swapStage, {time=400,rotation = 0, transition=easing.inOutElastic,  onComplete = swapTransition})
 			transition.to( gameStage, {time=400,y=0})
-			timer.performWithDelay(400,function () 
+			timer.performWithDelay(400,function ()
 				fifi.x, fifi.y = 1100,504
 				fifi:setFrame(2)
 				transition.to( fifi, {time = 500, x=752, y=504, onComplete = function()
@@ -322,7 +313,7 @@ function scene:show (event)
 		-------------------------------------------------
 		philacter = display.newImageRect(sceneGroup,"assets/philacter.png",650 ,256)
 		philacter.anchorX, philacter.anchorY = 0,0
-		
+
 		-------------------------------------------------
 		saidText = display.newText(sceneGroup,"", 500, 250, "Comic Sans MS", 35)
 		saidText:setFillColor(0,0,0)
@@ -344,7 +335,7 @@ function scene:show (event)
 				saidText.text = "Le bateau s'arretera\net la vague nous rattrapera"
 			elseif tapTutoPhase == 2 then
 				saidText.text = "Heureusement je suis un loup de mer\nJe connais tous les noeuds marin"
-				
+
 			elseif tapTutoPhase == 3 then
 				Runtime:removeEventListener("tap", tapStory)
 				AvariState[1].life = 2
@@ -377,7 +368,7 @@ function scene:show (event)
 		Runtime:addEventListener("tap", tapTutorial)
 		-------------------------------------------------
 		fifiMove = transition.to(fifi, {time=500, x=352, y=504, transition= easing.intSine})
-		
+
 		--
 	end
 end

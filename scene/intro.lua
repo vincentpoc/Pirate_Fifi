@@ -12,18 +12,7 @@ function scene:create (event)
     local bgSet = display.newImageRect(sceneGroup,"assets/house.png",1334,750)
     bgSet.x,bgSet.y = fCenterX,fCenterY
 
-    local fifiSheepOptions =
-	{
-		numFrames =4,
-		width = 186, height = 256,
-		sheetContentWidth = 373,sheetContentHeight = 512
-	}
-	local fifiSheet = graphics.newImageSheet( "assets_qrb/fifi.png", fifiSheepOptions )
-    local fifiSqData =
-    {
-        {name = "stand", frames = {1,2}, time = 500, loopcount = 0},
-        {name = "walk", frames = {3,1,3,2}, time = 600, loopcount = 0},
-    }
+    local fifiSheet = graphics.newImageSheet( "assets_qrb/fifi.png", fifiSheepOptions )
 	fifi = display.newSprite(sceneGroup, fifiSheet, fifiSqData )
     fifi:setSequence("walk")
     fifi:play()
@@ -31,19 +20,13 @@ function scene:create (event)
     fifi.xScale, fifi.yScale = -0.8,0.8
     fifi.x, fifi.y = 1300,604
     -------------------------------------------------
-
-    local captainDadSheepOptions =
-    {
-        numFrames =2,
-        width = 256, height = 377,
-        sheetContentWidth = 512,sheetContentHeight = 377
-    }
-	local captainDadSheet = graphics.newImageSheet( "assets/king.png", captainDadSheepOptions )
-	captainDad = display.newSprite(sceneGroup, captainDadSheet, {name="fifi", start=1, count=captainDadSheepOptions.numFrames} )
-	captainDad:setFrame(1)
+    local captainDadSheet = graphics.newImageSheet( "assets_qrb/pirate_dad.png", captainDadSheepOptions )
+	captainDad = display.newSprite(sceneGroup, captainDadSheet, captainDadSqData )
+    captainDad:setSequence("stand")
+    captainDad:play()
     captainDad.anchorX, captainDad.anchorY = 0.5,1.0
     captainDad.x, captainDad.y = 238,612
-    captainDad.xScale,captainDad.yScale = -0.75,0.75
+    captainDad.xScale,captainDad.yScale = -1,1
     -------------------------------------------------
     philacter = display.newImageRect(sceneGroup,"assets/philacter.png",650 ,256)
     philacter.anchorX, philacter.anchorY = 0,0
@@ -73,7 +56,7 @@ function scene:show (event)
         end
 
         function dadTalk ()
-            captainDad.xScale = 0.75
+            captainDad.xScale = 1
             philacter.xScale = 1
             philacter.x, philacter.y = 100, 100
             saidText.x,saidText.y = 340,208
@@ -89,7 +72,8 @@ function scene:show (event)
             elseif storyPhase == 1 then
                 --dady jump
                 local captainDad_yPos = captainDad.y
-                captainDad:setFrame(2)
+                captainDad:setSequence("jump")
+                captainDad:play()
                 transition.to(captainDad, {y = captainDad_yPos - 100, time=100, transition= easing.outSine})
                 transition.to(captainDad, {y = captainDad_yPos, time=150, delay=200, transition= easing.inSine})
                 timer.performWithDelay( 250, function () captainDad:setFrame(1) end)
@@ -97,6 +81,8 @@ function scene:show (event)
                 saidText.text="AAAH! Oui, Fifi \nQu'y a-t-il?"
                 saidText.size = 40
             elseif storyPhase == 2 then
+                captainDad:setSequence("stand")
+                captainDad:play()
                 fifiTalk()
                 saidText.text="Emène moi sur \nl'Ile des Cannibales!"
             elseif storyPhase == 3 then
@@ -111,7 +97,7 @@ function scene:show (event)
                 saidText.text="Avec moi cette vague ne nous\nrattrapera jamais!"
             elseif storyPhase == 6 then
                 dadTalk ()
-                saidText.text="D'accord, d'accord\nMais ne touche a rien\ndans le bateau!"
+                saidText.text="D'accord, d'accord\nMais ne touche a rien\sur le bateau!"
             elseif storyPhase == 5 then
                 fifiTalk()
                 saidText.text="Je te promets riem\n ALLONS-Y!"
@@ -121,8 +107,7 @@ function scene:show (event)
                 Runtime:removeEventListener("tap", tapStory)
                 transition.to( captainDad, {time=1200,x=1300})
                 transition.to( fifi, {time=800,x=1300, onComplete = function ()
-                fifi:stop()
-                fifi:setFrame(3)
+                captainDad:setFrame(3)
                     local options =
                     {
                         effect = "fade",
