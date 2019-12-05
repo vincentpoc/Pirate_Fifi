@@ -5,11 +5,9 @@ local sceneGroup
 ---------------------------------------------------------------------------------------------------
 local avariPick = 0
 local level = 0
+local waveLevel = 0
 local levelProgression
 local AvariState = {}
-local shipSpeed = 0.3
-local shipDeckDamage = 0
-local shipDeckDamageDebug
 local captainDad
 local fifi
 local fifiMove
@@ -18,29 +16,32 @@ local gameStage = display.newGroup()
 -------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------
 local function increaseLevel ()
-	print("------------ LEVEL: "..tostring(level).."------------------------")
+	print("------------ LEVEL: "..tostring(level).."/"..tostring(waveLevel).."------------------------")
 
 	local avariCount = 0
+	local shipSpeed = 0.3
+
 	for i=#AvariState, 1, -1 do
 		local vLife = AvariState[i].life
 		local vObject = AvariState[i].object
 		if vLife > 0 and vLife < gameCriticMaxLevel then ---if avari active ncreased avari state
 			AvariState[i].life = AvariState[i].life + 0.5
 			avariCount = avariCount + 1
-			print("increase avari: "..tostring(vLife))
+			--print("increase avari: "..tostring(vLife))
 		elseif vLife <= 0 and vLife > -1 then -- if avari fixed start cooldown
 			AvariState[i].life = - 1
-			print("cooldown: "..tostring(vLife))
+			--print("cooldown: "..tostring(vLife))
 		elseif vLife <= -1 then --end of the cooldown fixed state
 			if avariPick == i then
-				print("New avari: "..tostring(vLife))
+				--print("New avari: "..tostring(vLife))
 				AvariState[i].life = 4 --set a new avari
 			else
-				print("wait for pick: "..tostring(vLife))
+				--print("wait for pick: "..tostring(vLife))
 				AvariState[i].life = -1 --hide fixed icon
 			end
 		end
 		------
+		
 		if vLife >= gameCriticLevel then --warning
 			transition.to(vObject, {xScale = 1.2, yScale = 1.2, time=150, transition= easing.continuousLoop})
 			if vLife >= gameCriticMaxLevel then
@@ -64,7 +65,50 @@ local function increaseLevel ()
 	else
 		transition.to(levelProgression, {xScale = 1.5, yScale = 1.5, time=100, delay=50, transition= easing.continuousLoop, iterations=2})
 	end
-	transition.to(wave,{time=100000,x=1200})
+	--------------------------------------------------------GAME OVER --------------------------
+	if waveLevel > level then
+
+		timer.cancel(gameloop)
+
+		local rollingWaveA = display.newImageRect("assets_qrb/rollingwave.png",425,650)
+		rollingWaveA.x,rollingWaveA.y = -300,fCenterY
+		local rollingWaveB = display.newImageRect("assets_qrb/rollingwave.png",425,650)
+		rollingWaveB.x,rollingWaveB.y = -300,fCenterY
+		gameStage:insert(rollingWaveA)
+		gameStage:insert(rollingWaveB)
+
+		captainDad:setSequence("jump")
+		captainDad:play()
+
+		if not(fifiMove == nil) then transition.cancel(fifiMove) end --stop animation
+
+		transition.to(captainDad,{delay= 500, time=2000, rotation = 360,x=1380 })
+		transition.to(fifi,{delay=250, time=2000, rotation = 360,x=1380})
+		transition.to(rollingWaveA,{time=2000, x = 1380})
+		transition.to(rollingWaveB,
+		{
+			delay= 500, time=2000, x = 1380,
+			onComplete = function ()
+				local options =
+				{
+					effect = "fade",
+					time = 400
+				}
+				composer.gotoScene ("scene.gameover")
+			end
+		})
+
+		level = 0
+		waveLevel = 0
+		wave.x,levelProgression.x = 0,0
+		for i=#AvariState, 1, -1 do
+			AvariState[i].life = -1
+			AvariState[i].object:avariUpdate()
+		end
+	end
+
+	waveLevel = waveLevel + 0.15
+	transition.to(wave,{time=gameSpeed, x=(100 * waveLevel) - 50})
 end
 -------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------- create()
@@ -72,6 +116,7 @@ end
 function scene:create (event)
 
 	sceneGroup = self.view
+	gameStage = display.newGroup()
 	-------------------------------------------------------------------------------------------------------------
 	local function spawnAvari (id,px,py,isRope)
 
@@ -149,16 +194,23 @@ function scene:create (event)
 			local vLife = math.floor(AvariState[id].life)
 			if vLife >= 0 then
 				if not(fifiMove == nil) then
-					fifi:setFrame(2)
+					fifi:setSequence("walk")
 					transition.cancel(fifiMove)
 				else
-					fifi:setFrame(1)
+					fifi:setSequence("stand")
 				end
 				-----
 				local ropeOffset
 				if isRope then
 					ropeOffset = 50
-					fifiMove = transition.to(fifi, {time=500, x=buttonAvari.x - 50, y=buttonAvari.y + 50, transition= easing.intSine})
+					fifiMove = transition.to(fifi, 
+					{	time=500, x=buttonAvari.x - 50, y=buttonAvari.y + 50, 
+						transition= easing.intSine, 
+						onComplete = function () 
+							fifi:setSequence("stand")
+							fifi:play()
+						end 
+					})
 				else
 					ropeOffset = 0
 					fifiMove = transition.to(fifi, {time=500, x=buttonAvari.x, transition= easing.intSine})
@@ -173,12 +225,15 @@ function scene:create (event)
 					AvariState[id].life = AvariState[id].life - 1
 					transition.to(buttonAvari, {xScale = 1.3, yScale = 1.3, time=100, transition= easing.continuousLoop})
 					fifi.xScale = 0.8
-					fifi:setFrame(3)
-					timer.performWithDelay(300,function () fifi:setFrame(1) end )
+					fifi:setSequence("fix")
+					timer.performWithDelay(300,function () 
+						fifi:setSequence("stand")
+					end )
 					buttonAvari:avariUpdate()
 				else
 					print("out of range")
 				end
+				fifi:play()
 			end
 			return true
 		end
@@ -190,7 +245,7 @@ function scene:create (event)
 	----------------------------------------------------------------------------------------------------------------
 	local bgShip = display.newImageRect("assets_qrb/ship_deck.png", 1152, 1280)
     bgShip.anchorX, bgShip.anchorY = 0.5, 0.25
-    bgShip.x, bgShip.y = fCenterX, fCenterY
+	bgShip.x, bgShip.y = fCenterX, fCenterY
 	gameStage:insert(bgShip)
 	-------------------------------------------------
 	spawnAvari(5, 74,290+640, false)
@@ -207,7 +262,7 @@ function scene:create (event)
     fifi:play()
     fifi.anchorX, fifi.anchorY = 0.5,1
     fifi.xScale, fifi.yScale = 0.8,0.8
-    fifi.x, fifi.y = 752,504
+    fifi.x, fifi.y = 1200,504
 	gameStage:insert(fifi)
 	-------------------------------------------------
 	-------------------------------------------------
@@ -222,22 +277,29 @@ function scene:create (event)
 	-------------------------------------------------
     local shipWheel = display.newImageRect("assets/wheel.png",128,256)
     shipWheel.anchorX, shipWheel.anchorY = 0.5,1.0
-    shipWheel.x,shipWheel.y = 102,488
+    shipWheel.x,shipWheel.y = 232,488
 	gameStage:insert(shipWheel)
 	-------------------------------------------------
 	spawnAvari(3,632,517,true)
-	spawnAvari(4,265,492,true)
+	spawnAvari(4,365,492,true)
 	-------------------------------------------------need to display the wave
 	local UI = display.newGroup()
 	levelProgression = display.newImageRect("assets/ship_icon.png",64,64)
 	levelProgression.x, levelProgression.y = 0,30
 	--levelProgression:setFillColor(1,0,0)
 	UI:insert(levelProgression)
-
-	wave = display.newRect(0,0,20,50)
-	wave:setFillColor(0,0.25,1)
+	----------------------------------------------
+	wave = display.newImageRect("assets_qrb/rollingwave_icon.png",42,64)
+	--wave:setFillColor(0,0.25,1)
 	wave.x,wave.y = -100, 20
 	UI:insert(wave)
+	-------------------------------------------------
+	local debugWaveA = display.newRect(10,10,50,50)
+	UI:insert(debugWaveA)
+	local function waveBoost ()
+		waveLevel = waveLevel + 10
+	end
+	debugWaveA:addEventListener("tap", waveBoost)
 	-------------------------------------------------
 	local swapStage = display.newImageRect(sceneGroup,"assets/arrow.png", 128, 128)
 	swapStage.x, swapStage.y = 50, 100
@@ -252,9 +314,11 @@ function scene:create (event)
 			transition.to( gameStage, {time=400, y=-640})
 			timer.performWithDelay(400,function ()
 				fifi.x,fifi.y = 1100,1000
-				fifi:setFrame(2)
+				fifi:setSequence("walk")
+      			fifi:play()
 				transition.to( fifi, {time = 500, x=852, y=1144, onComplete = function()
-					fifi:setFrame(1)
+					fifi:setSequence("stand")
+      				fifi:play()
 				end})
 			end)
 			swapStageState = "goingDown"
@@ -264,9 +328,11 @@ function scene:create (event)
 			transition.to( gameStage, {time=400,y=0})
 			timer.performWithDelay(400,function ()
 				fifi.x, fifi.y = 1100,504
-				fifi:setFrame(2)
+				fifi:setSequence("walk")
+				fifi:play()
 				transition.to( fifi, {time = 500, x=752, y=504, onComplete = function()
-					fifi:setFrame(1)
+					fifi:setSequence("stand")
+      				fifi:play()
 				end} )
 			end)
 			swapStageState = "goingUp"
@@ -298,11 +364,17 @@ function scene:show (event)
 
 	local sceneGroup = self.view
 	local tapTutorial
+
+	fifi.x, fifi.y = 1200,504
+	captainDad.x, captainDad.y = 110,460
+	fifi.rotation = 0
+	captainDad.rotation = 0
+
 	function tutorialRope ()
 		if AvariState[1].life <= 0 then
 			AvariState[1].life = -1
 			AvariState[1].object:avariUpdate()
-			timer.performWithDelay( gameSpeed, increaseLevel,0)
+			gameloop = timer.performWithDelay( gameSpeed, increaseLevel,0)
 		else
 			timer.performWithDelay(gameSpeed * 0.5, tutorialRope)
 		end
@@ -322,10 +394,18 @@ function scene:show (event)
 		saidText.text = "AAAAH!\nLa vague est juste derriere nous!"
 		--dady jump
 		local captainDad_yPos = captainDad.y
-		captainDad:setFrame(2)
+		captainDad:setSequence("jump")
+    	captainDad:play()
 		transition.to(captainDad, {y = captainDad_yPos - 100, time=100, transition= easing.outSine})
 		transition.to(captainDad, {y = captainDad_yPos, time=150, delay=200, transition= easing.inSine})
-		timer.performWithDelay( 250, function () captainDad:setFrame(1) end)
+		timer.performWithDelay( 250, function () 
+			captainDad:setSequence("stand")
+			captainDad:play()
+		end)
+
+		fifi:setSequence("walk")
+		fifi:play()
+
 		local tapTutoPhase = 0
 		function tapTutorial ()
 
@@ -340,13 +420,19 @@ function scene:show (event)
 				Runtime:removeEventListener("tap", tapStory)
 				AvariState[1].life = 2
 				AvariState[1].object:avariUpdate()
+				philacter.isVisible = false
+				saidText.isVisible = false
 				timer.performWithDelay(500, function()
 					--dady jump
 					local captainDad_yPos = captainDad.y
-					captainDad:setFrame(2)
+					captainDad:setSequence("jump")
+   					captainDad:play()
 					transition.to(captainDad, {y = captainDad_yPos - 100, time=100, transition= easing.outSine})
 					transition.to(captainDad, {y = captainDad_yPos, time=150, delay=200, transition= easing.inSine})
-					timer.performWithDelay( 250, function () captainDad:setFrame(1) end)
+					timer.performWithDelay( 250, function () 
+						captainDad:setSequence("stand")
+						captainDad:play()
+					end)
 				end)
 				timer.performWithDelay(1000, function()
 					philacter.isVisible = true
@@ -367,7 +453,11 @@ function scene:show (event)
 		end
 		Runtime:addEventListener("tap", tapTutorial)
 		-------------------------------------------------
-		fifiMove = transition.to(fifi, {time=500, x=352, y=504, transition= easing.intSine})
+		fifiMove = transition.to(fifi, {time=800, x=432, y=504, transition= easing.intSine, 
+			onComplete=function ()
+				fifi:setSequence("stand")
+				fifi:play()
+			end})
 
 		--
 	end

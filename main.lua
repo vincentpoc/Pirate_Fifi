@@ -13,8 +13,6 @@ display.setStatusBar (display.HiddenStatusBar)
 -- Seed the random number generator
 math.randomseed (os.time () )
 
-
-
 ---
 fifiSheepOptions =
 {
@@ -27,7 +25,7 @@ fifiSqData =
 {
 	{name = "stand", frames = {1,2}, time = 500, loopcount = 0},
 	{name = "walk", frames = {3,1,3,2}, time = 600, loopcount = 0},
-	{name = "fix", frames = {4,1,4,2}, time = 500, loopcount = 0}
+	{name = "fix", frames = {4,4,4,2}, time = 500, loopcount = 0}
 }
 ----
 captainDadSheepOptions =

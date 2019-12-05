@@ -63,7 +63,6 @@ function scene:create (event)
   local btSkip = display.newImageRect( "assets/ui_frame.png", 256, 128)
   local txSkip = display.newText("SKIP", 0, 0, "Comic Sans MS", 60)
   txGoToGame:setFillColor(1,1,0)
-
   local btGroupSkip = display.newGroup()
   btGroupSkip:insert(btSkip)
   btGroupSkip:insert(txSkip)

@@ -78,7 +78,10 @@ function scene:show (event)
                 captainDad:play()
                 transition.to(captainDad, {y = captainDad_yPos - 100, time=100, transition= easing.outSine})
                 transition.to(captainDad, {y = captainDad_yPos, time=150, delay=200, transition= easing.inSine})
-                timer.performWithDelay( 250, function () captainDad:setFrame(1) end)
+                timer.performWithDelay( 250, function () 
+                    captainDad:setSequence("stand")
+                    captainDad:play()
+                end)
                 dadTalk ()
                 saidText.text="AAAH! Oui, Fifi \nQu'y a-t-il?"
                 saidText.size = 40
@@ -99,7 +102,7 @@ function scene:show (event)
                 saidText.text="Avec moi cette vague ne nous\nrattrapera jamais!"
             elseif storyPhase == 6 then
                 dadTalk ()
-                saidText.text="D'accord, d'accord\nMais ne touche a rien\sur le bateau!"
+                saidText.text="D'accord, d'accord\nMais ne touche a rien\nsur le bateau!"
             elseif storyPhase == 5 then
                 fifiTalk()
                 saidText.text="Je te promets riem\n ALLONS-Y!"
@@ -109,7 +112,6 @@ function scene:show (event)
                 Runtime:removeEventListener("tap", tapStory)
                 transition.to( captainDad, {time=1200,x=1300})
                 transition.to( fifi, {time=800,x=1300, onComplete = function ()
-                captainDad:setFrame(3)
                     local options =
                     {
                         effect = "fade",
