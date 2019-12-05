@@ -5,44 +5,46 @@ local scene    = composer.newScene ()
 function scene:create (event)
 
     local sceneGroup = self.view
-    local gameoverBG = display.newImageRect("assets_qrb/gameover.png",1136,640)
+    local gameoverBG = display.newImageRect("assets_qrb/win_island.png",1136,640)
     gameoverBG.x, gameoverBG.y = fCenterX, fCenterY
     -------------------------------------------------
     local fifiSheet = graphics.newImageSheet( "assets_qrb/fifi.png", fifiSheepOptions )
 	fifi = display.newSprite(sceneGroup, fifiSheet, fifiSqData )
-    fifi:setSequence("walk")
+    fifi:setSequence("stand")
     fifi:play()
     fifi.anchorX, fifi.anchorY = 0.5,1
-    fifi.xScale, fifi.yScale = 0.8,0.8
-    fifi.x, fifi.y = 700,fHeight - 30
+    fifi.xScale, fifi.yScale = 0.6,0.6
+    fifi.x, fifi.y = 1000, fHeight - 120
 
 	-------------------------------------------------
 
     local captainDadSheet = graphics.newImageSheet( "assets_qrb/pirate_dad.png", captainDadSheepOptions )
 	captainDad = display.newSprite(sceneGroup, captainDadSheet, captainDadSqData )
-    captainDad:setSequence("jump")
+    captainDad:setSequence("smile")
     captainDad:play()
     captainDad.anchorX, captainDad.anchorY = 0.5,1.0
-    captainDad.x, captainDad.y = 300,fHeight
+    captainDad.xScale, captainDad.yScale = 0.8,0.8
+    captainDad.x, captainDad.y = 850, fHeight - 50
+    transition.to(captainDad, {time=400, y=captainDad.y + 10, transition=easing.continuousLoop,iterations=0})
     -------------------------------------------------
-    local waveGroup = display.newGroup()
-    for i=0, 4 do
-      local bgWave = display.newImageRect("assets/env_wave_a.png", 512, 132)
-      bgWave.anchorX, bgWave.anchorY = 0, 1
-      bgWave.yScale = 1.5
-      bgWave.x, bgWave.y = (512 * i)-512, 15
-      waveGroup:insert(bgWave)
-    end
-    waveGroup.x, waveGroup.y = -256, fHeight
-
+    local ship = display.newImage("assets_qrb/ship_menu.png", 495,512)
+    ship.anchorX, ship.anchorY = 0,1.0
+    ship.xScale, ship.yScale = 0.8,0.8
+    ship.x, ship.y = 100, fHeight -20
+    transition.to(ship, {time=500, y=fHeight - 10, transition= easing.continuousLoop, iterations=0})
     -------------------------------------------------
-    local btGoToGame = display.newImageRect( "assets/ui_frame.png", 300, 128)
-    local txGoToGame = display.newText("REJOUER", 0, 0, "Comic Sans MS", 60)
+    local btGoToGame = display.newImageRect( "assets/ui_frame.png", 350, 128)
+    local txGoToGame = display.newText("REJOUER", 0, 0, "Comic Sans MS", 50)
     txGoToGame:setFillColor(1,1,0)
+    local txWIN = display.newText("QUEL VOYAGE FANTASTIQUE", 0, 0, "Comic Sans MS", 60)
+    txWIN:setFillColor(0.25,0.2,0)
+    txWIN.y = -120
+
     local btGroup = display.newGroup()
     btGroup:insert(btGoToGame)
     btGroup:insert(txGoToGame)
-    btGroup.x, btGroup.y = fCenterX , fCenterY
+    btGroup:insert(txWIN)
+    btGroup.x, btGroup.y = fCenterX , fCenterY - 100
 
     local function onTapRetry ()
         local options =
@@ -56,9 +58,9 @@ function scene:create (event)
     btGoToGame:addEventListener("tap", onTapRetry)
 
     sceneGroup:insert(gameoverBG)
+    sceneGroup:insert(ship)
     sceneGroup:insert(fifi)
     sceneGroup:insert(captainDad)
-    sceneGroup:insert(waveGroup)
     sceneGroup:insert(btGroup)
 end
 ----------------------------------------------------------------------------------------- show()

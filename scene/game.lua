@@ -9,6 +9,8 @@ local waveLevel = 0
 local levelProgression
 local AvariState = {}
 local captainDad
+local swapStageOnTap
+local swapStageState
 local fifi
 local fifiMove
 local wave
@@ -41,7 +43,7 @@ local function increaseLevel ()
 			end
 		end
 		------
-		
+
 		if vLife >= gameCriticLevel then --warning
 			transition.to(vObject, {xScale = 1.2, yScale = 1.2, time=150, transition= easing.continuousLoop})
 			if vLife >= gameCriticMaxLevel then
@@ -60,44 +62,17 @@ local function increaseLevel ()
 	end
 
 	if shipSpeed > 0 then
-		if level < 10 then level = level + shipSpeed end
+		level = level + shipSpeed
 		transition.to( levelProgression, {time=gameSpeed, x=50 + (100 * level) } )
 	else
 		transition.to(levelProgression, {xScale = 1.5, yScale = 1.5, time=100, delay=50, transition= easing.continuousLoop, iterations=2})
 	end
+
+	waveLevel = waveLevel + 0.15
+	transition.to(wave,{time=gameSpeed, x=50 + (100 * waveLevel)})
+
 	--------------------------------------------------------GAME OVER --------------------------
-	if waveLevel > level then
-
-		timer.cancel(gameloop)
-
-		local rollingWaveA = display.newImageRect("assets_qrb/rollingwave.png",425,650)
-		rollingWaveA.x,rollingWaveA.y = -300,fCenterY
-		local rollingWaveB = display.newImageRect("assets_qrb/rollingwave.png",425,650)
-		rollingWaveB.x,rollingWaveB.y = -300,fCenterY
-		gameStage:insert(rollingWaveA)
-		gameStage:insert(rollingWaveB)
-
-		captainDad:setSequence("jump")
-		captainDad:play()
-
-		if not(fifiMove == nil) then transition.cancel(fifiMove) end --stop animation
-
-		transition.to(captainDad,{delay= 500, time=2000, rotation = 360,x=1380 })
-		transition.to(fifi,{delay=250, time=2000, rotation = 360,x=1380})
-		transition.to(rollingWaveA,{time=2000, x = 1380})
-		transition.to(rollingWaveB,
-		{
-			delay= 500, time=2000, x = 1380,
-			onComplete = function ()
-				local options =
-				{
-					effect = "fade",
-					time = 400
-				}
-				composer.gotoScene ("scene.gameover")
-			end
-		})
-
+	local function resetGame ()
 		level = 1
 		waveLevel = 0
 		wave.x,levelProgression.x = 0,0
@@ -107,8 +82,67 @@ local function increaseLevel ()
 		end
 	end
 
-	waveLevel = waveLevel + 0.15
-	transition.to(wave,{time=gameSpeed, x=50 + (100 * waveLevel)})
+	if waveLevel > level then --LOSE CONDITION
+
+		timer.cancel(gameloop)
+		local swapDelay = 0
+		if not(fifiMove == nil) then transition.cancel(fifiMove) end --stop animation
+		if swapStageState == "DOWN" then
+			swapStageOnTap ()
+			swapDelay = 1000
+		end
+
+		local rollingWaveA = display.newImageRect("assets_qrb/rollingwave.png",425,650)
+		rollingWaveA.x,rollingWaveA.y = -300, fCenterY
+		local rollingWaveB = display.newImageRect("assets_qrb/rollingwave.png",425,650)
+		rollingWaveB.x,rollingWaveB.y = -300,fCenterY
+		gameStage:insert(rollingWaveA)
+		gameStage:insert(rollingWaveB)
+
+		captainDad:setSequence("jump")
+		captainDad:play()
+		timer.performWithDelay(swapDelay, function()
+
+			transition.to(captainDad,{delay= 250, time=2000, rotation = 360,x=1380 })
+			transition.to(fifi,{delay=500, time=2000, rotation = 360,x=1380})
+			transition.to(rollingWaveA,{delay=10, time=2000, x = 1380})
+			transition.to(rollingWaveB,
+			{
+				delay= 200, time=2000, x = 1380,
+				onComplete = function ()
+					resetGame()
+					local options =
+					{
+						effect = "fade",
+						time = 400
+					}
+					composer.gotoScene ("scene.gameover")
+				end
+			})
+
+		end)
+
+	elseif level > 10 then --WIN CONDITION
+
+		timer.cancel(gameloop)
+		if not(fifiMove == nil) then transition.cancel(fifiMove) end --stop animation
+
+		transition.to(captainDad,{delay= 500, time=2000,x=1380 })
+		transition.to(fifi,
+		{
+			delay=250, time=2000,x=1380,
+			onComplete = function ()
+				resetGame()
+				local options =
+				{
+					effect = "fade",
+					time = 400
+				}
+				composer.gotoScene ("scene.gamewin")
+			end
+
+		})
+	end
 end
 -------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------- create()
@@ -203,17 +237,24 @@ function scene:create (event)
 				local ropeOffset
 				if isRope then
 					ropeOffset = 50
-					fifiMove = transition.to(fifi, 
-					{	time=500, x=buttonAvari.x - 50, y=buttonAvari.y + 50, 
-						transition= easing.intSine, 
-						onComplete = function () 
+					fifiMove = transition.to(fifi,
+					{	time=500, x=buttonAvari.x - 50, y=buttonAvari.y + 50,
+						transition= easing.intSine,
+						onComplete = function ()
 							fifi:setSequence("stand")
 							fifi:play()
-						end 
+						end
 					})
 				else
 					ropeOffset = 0
-					fifiMove = transition.to(fifi, {time=500, x=buttonAvari.x, transition= easing.intSine})
+					fifiMove = transition.to(fifi,
+					{
+						time=500, x=buttonAvari.x, transition= easing.intSine,
+						onComplete = function ()
+							fifi:setSequence("stand")
+							fifi:play()
+						end
+					})
 				end
 				print(tostring(math.floor((fifi.x + 50) * 0.01)) .." / ".. tostring(math.floor(buttonAvari.x * 0.01)))
 				if (buttonAvari.x - fifi.x) > 0 then
@@ -226,7 +267,7 @@ function scene:create (event)
 					transition.to(buttonAvari, {xScale = 1.3, yScale = 1.3, time=100, transition= easing.continuousLoop})
 					fifi.xScale = 0.8
 					fifi:setSequence("fix")
-					timer.performWithDelay(300,function () 
+					timer.performWithDelay(300,function ()
 						fifi:setSequence("stand")
 					end )
 					buttonAvari:avariUpdate()
@@ -282,32 +323,41 @@ function scene:create (event)
 	-------------------------------------------------
 	spawnAvari(3,632,517,true)
 	spawnAvari(4,365,492,true)
-	-------------------------------------------------need to display the wave
+
+	-------------------------------------------------
 	local UI = display.newGroup()
+
+	local journeyIcon = display.newRect(15,70,1050,8)
+	journeyIcon.anchorX = 0
+	journeyIcon:setFillColor(0.1,0.5,1)
+	UI:insert(journeyIcon)
+	-------------------------------------------------
+	local islandIcon = display.newImageRect("assets_qrb/island_icon.png",64,68)
+	islandIcon.x,islandIcon.y = 1070, 40
+	UI:insert(islandIcon)
+	-------------------------------------------------
 	levelProgression = display.newImageRect("assets/ship_icon.png",64,64)
-	levelProgression.x, levelProgression.y = 0,30
-	--levelProgression:setFillColor(1,0,0)
+	levelProgression.x, levelProgression.y = 0,40
 	UI:insert(levelProgression)
 	----------------------------------------------
 	wave = display.newImageRect("assets_qrb/rollingwave_icon.png",42,64)
-	--wave:setFillColor(0,0.25,1)
-	wave.x,wave.y = -100, 20
+	wave.x,wave.y = -100, 40
 	UI:insert(wave)
 	-------------------------------------------------
-	local debugWaveA = display.newRect(10,10,50,50)
+	local debugWaveA = display.newRect(10,600,50,50)
 	UI:insert(debugWaveA)
 	local function waveBoost ()
-		waveLevel = waveLevel + 10
+		waveLevel = waveLevel + 4
 	end
 	debugWaveA:addEventListener("tap", waveBoost)
 	-------------------------------------------------
 	local swapStage = display.newImageRect(sceneGroup,"assets/arrow.png", 128, 128)
 	swapStage.x, swapStage.y = 50, 100
 	UI:insert(swapStage)
-	local swapStageState = "UP"
+	swapStageState = "UP"
 
 	function swapStageOnTap ()
-		print(swapStageState)
+		--print(swapStageState)
 
 		if swapStageState == "UP" then
 			transition.to( swapStage, {time=400, rotation = 180, transition=easing.inOutElastic, onComplete = swapTransition})
@@ -367,6 +417,9 @@ function scene:show (event)
 
 	fifi.x, fifi.y = 1200,504
 	captainDad.x, captainDad.y = 110,460
+	captainDad:setSequence("stand")
+	captainDad:play()
+
 	fifi.rotation = 0
 	captainDad.rotation = 0
 
@@ -398,7 +451,7 @@ function scene:show (event)
     	captainDad:play()
 		transition.to(captainDad, {y = captainDad_yPos - 100, time=100, transition= easing.outSine})
 		transition.to(captainDad, {y = captainDad_yPos, time=150, delay=200, transition= easing.inSine})
-		timer.performWithDelay( 250, function () 
+		timer.performWithDelay( 250, function ()
 			captainDad:setSequence("stand")
 			captainDad:play()
 		end)
@@ -429,7 +482,7 @@ function scene:show (event)
    					captainDad:play()
 					transition.to(captainDad, {y = captainDad_yPos - 100, time=100, transition= easing.outSine})
 					transition.to(captainDad, {y = captainDad_yPos, time=150, delay=200, transition= easing.inSine})
-					timer.performWithDelay( 250, function () 
+					timer.performWithDelay( 250, function ()
 						captainDad:setSequence("stand")
 						captainDad:play()
 					end)
@@ -453,7 +506,7 @@ function scene:show (event)
 		end
 		Runtime:addEventListener("tap", tapTutorial)
 		-------------------------------------------------
-		fifiMove = transition.to(fifi, {time=800, x=432, y=504, transition= easing.intSine, 
+		fifiMove = transition.to(fifi, {time=800, x=432, y=504, transition= easing.intSine,
 			onComplete=function ()
 				fifi:setSequence("stand")
 				fifi:play()

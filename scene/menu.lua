@@ -53,20 +53,12 @@ function scene:create (event)
   uititle.x,uititle.y = fCenterX,fCenterY - 150
 
   local btGoToGame = display.newImageRect( "assets/ui_frame.png", 256, 128)
-  local txGoToGame = display.newText("START", 0, 0, "Comic Sans MS", 60)
+  local txGoToGame = display.newText("JOUER", 0, 0, "Comic Sans MS", 50)
   txGoToGame:setFillColor(1,1,0)
   local btGroup = display.newGroup()
   btGroup:insert(btGoToGame)
   btGroup:insert(txGoToGame)
-  btGroup.x, btGroup.y = fWidth - 160 , fHeight - 90
-
-  local btSkip = display.newImageRect( "assets/ui_frame.png", 256, 128)
-  local txSkip = display.newText("SKIP", 0, 0, "Comic Sans MS", 60)
-  txGoToGame:setFillColor(1,1,0)
-  local btGroupSkip = display.newGroup()
-  btGroupSkip:insert(btSkip)
-  btGroupSkip:insert(txSkip)
-  btGroupSkip.x, btGroupSkip.y = 150 , fHeight - 90
+  btGroup.x, btGroup.y = fCenterX , fHeight - 230
 
   --STAGE--
   --menuGroup:insert(skyGroup)
@@ -74,7 +66,7 @@ function scene:create (event)
   sceneGroup:insert(ship)
   sceneGroup:insert(waveGroup)
   sceneGroup:insert(btGroup)
-  sceneGroup:insert(btGroupSkip)
+  --sceneGroup:insert(btGroupSkip)
   sceneGroup:insert(uititle)
   --sceneGroup:insert(menuGroup)
 
@@ -91,20 +83,6 @@ function scene:create (event)
       return true
   end
   btGoToGame:addEventListener("tap", onTapGoToGame )
-
-    --EVENT---
-    function onTapSkip ( event )
-        transition.to(btGroupSkip, {xScale = 1.4, yScale = 1.4, time=200, transition= easing.continuousLoop})
-        local options =
-        {
-            effect = "fade",
-            time = 500
-        }
-        --composer.gotoScene( "scene.game", options )
-        composer.gotoScene( "scene.game", options )
-        return true
-    end
-    btSkip:addEventListener("tap", onTapSkip )
 
 end
 ----------------------------------------------------------------------------------------- show()
