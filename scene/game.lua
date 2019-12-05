@@ -4,7 +4,7 @@ local scene    = composer.newScene ()
 local sceneGroup
 ---------------------------------------------------------------------------------------------------
 local avariPick = 0
-local level = 0
+local level = 1
 local waveLevel = 0
 local levelProgression
 local AvariState = {}
@@ -98,7 +98,7 @@ local function increaseLevel ()
 			end
 		})
 
-		level = 0
+		level = 1
 		waveLevel = 0
 		wave.x,levelProgression.x = 0,0
 		for i=#AvariState, 1, -1 do
@@ -108,7 +108,7 @@ local function increaseLevel ()
 	end
 
 	waveLevel = waveLevel + 0.15
-	transition.to(wave,{time=gameSpeed, x=(100 * waveLevel) - 50})
+	transition.to(wave,{time=gameSpeed, x=50 + (100 * waveLevel)})
 end
 -------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------- create()
