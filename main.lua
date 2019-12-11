@@ -48,5 +48,5 @@ local options =
 	time = 400
 }
 
-composer.gotoScene ("scene.menu")
+composer.gotoScene ("scene.gamewin")
 --composer.gotoScene ("scene.debugger")

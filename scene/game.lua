@@ -344,12 +344,12 @@ function scene:create (event)
 	wave.x,wave.y = -100, 40
 	UI:insert(wave)
 	-------------------------------------------------
-	-- local debugWaveA = display.newRect(10,600,50,50)
-	-- UI:insert(debugWaveA)
-	-- local function waveBoost ()
-	-- 	waveLevel = waveLevel + 4
-	-- end
-	-- debugWaveA:addEventListener("tap", waveBoost)
+ 	local debugWaveA = display.newRect(10,600,50,50)
+	 UI:insert(debugWaveA)
+	 local function waveBoost ()
+	 	waveLevel = level + 4
+	 end
+	 debugWaveA:addEventListener("tap", waveBoost)
 	-------------------------------------------------
 	local swapStage = display.newImageRect(sceneGroup,"assets/arrow.png", 128, 128)
 	swapStage.x, swapStage.y = 50, 100
@@ -428,6 +428,8 @@ function scene:show (event)
 			AvariState[1].life = -1
 			AvariState[1].object:avariUpdate()
 			gameloop = timer.performWithDelay( gameSpeed, increaseLevel,0)
+			philacter.isVisible = false
+			saidText.isVisible = false
 		else
 			timer.performWithDelay(gameSpeed * 0.5, tutorialRope)
 		end

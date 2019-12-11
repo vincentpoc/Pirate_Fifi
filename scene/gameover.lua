@@ -5,7 +5,7 @@ local scene    = composer.newScene ()
 function scene:create (event)
 
     local sceneGroup = self.view
-    local gameoverBG = display.newImageRect("assets_qrb/gameover.png",1136,640)
+    local gameoverBG = display.newImageRect("assets_qrb/gameover.jpg",1136,640)
     gameoverBG.x, gameoverBG.y = fCenterX, fCenterY
     -------------------------------------------------
     local fifiSheet = graphics.newImageSheet( "assets_qrb/fifi.png", fifiSheepOptions )
