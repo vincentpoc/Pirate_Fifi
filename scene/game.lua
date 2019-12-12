@@ -404,6 +404,10 @@ function scene:create (event)
 	sceneGroup:insert(UI)
 	--gameStage.xScale, gameStage.yScale = 0.85, 0.85
 	--gameStage.x, gameStage.y = 0,100
+	gameStage.rotation = 0
+	gameStage.xScale, gameStage.yScale = 1.1, 1.1
+	gameStage.x = -10
+	transition.to(gameStage,{delay=500, time=6000, rotation = -2, transition= easing.continuousLoop, iterations = 0})
 end
 -------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------

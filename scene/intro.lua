@@ -53,7 +53,7 @@ function scene:create (event)
     btGroupSkip = display.newGroup()
     btGroupSkip:insert(btSkip)
     btGroupSkip:insert(txSkip)
-    btGroupSkip.x, btGroupSkip.y = fWidth - 150 , 50
+    btGroupSkip.x, btGroupSkip.y = 150 , 50
     sceneGroup:insert(btGroupSkip)
 
 end
