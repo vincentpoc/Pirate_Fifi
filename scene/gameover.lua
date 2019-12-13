@@ -8,6 +8,11 @@ function scene:create (event)
     local gameoverBG = display.newImageRect("assets_qrb/gameover.jpg",1136,640)
     gameoverBG.x, gameoverBG.y = fCenterX, fCenterY
     -------------------------------------------------
+    mrMonkey = display.newImageRect(sceneGroup, "assets_qrb/mr_monkey.png",178,222)
+    mrMonkey.anchorX, mrMonkey.anchorY = 0.5,1.0
+    mrMonkey.xScale, mrMonkey.yScale = 0.6, 0.6
+    mrMonkey.x, mrMonkey.y = 900, fHeight - 60
+    -------------------------------------------------
     local fifiSheet = graphics.newImageSheet( "assets_qrb/fifi.png", fifiSheepOptions )
 	fifi = display.newSprite(sceneGroup, fifiSheet, fifiSqData )
     fifi:setSequence("walk")
@@ -56,6 +61,7 @@ function scene:create (event)
     btGoToGame:addEventListener("tap", onTapRetry)
 
     sceneGroup:insert(gameoverBG)
+    sceneGroup:insert(mrMonkey)
     sceneGroup:insert(fifi)
     sceneGroup:insert(captainDad)
     sceneGroup:insert(waveGroup)

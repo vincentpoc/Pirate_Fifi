@@ -6,6 +6,7 @@ local fifi
 local captainDad
 local philacter
 local saidText
+local bunny
 ----------------------------------------------------------------------------------------- create()
 function scene:create (event)
 
@@ -19,9 +20,10 @@ function scene:create (event)
     transition.to(ship, {time=1000, y=fHeight - 10, transition= easing.continuousLoop, iterations=0})
 
     local bgSet = display.newImageRect(sceneGroup,"assets_qrb/house.png",1136,640)
-    --bgSet.anchorX, bgSet.anchorY = 0,1
-    --bgSet.xScale,bgSet.yScale = 1.25, 1.25
     bgSet.x,bgSet.y = fCenterX,fCenterY
+
+    bunny = display.newImageRect(sceneGroup,"assets_qrb/lapin.png",128,128)
+    bunny.x, bunny.y = 100,550
 
     local fifiSheet = graphics.newImageSheet( "assets_qrb/fifi.png", fifiSheepOptions )
 	fifi = display.newSprite(sceneGroup, fifiSheet, fifiSqData )
@@ -65,25 +67,38 @@ function scene:show (event)
 	local phase      = event.phase
     local storyPhase = 0
 
-
-
     local tapStory
+
+    local function bunnyhopDown ()
+        bunny.xScale = 1
+        transition.to(bunny,{delay=1000, time=1000, y=550, transition= easing.outBounce})
+        transition.to(bunny,{delay=1000, time=1000, x=100})
+    end
+    local function bunnyhopUp()
+        bunny.xScale = -1
+        transition.to(bunny,{delay=1000, time=1000, y=550 - 200, transition= easing.inBounce})
+        transition.to(bunny,{delay=1000, time=1000, x=100 + 200})
+        timer.performWithDelay(3000,bunnyhopDown)
+    end
+    bunnyhopUp()
+    
 	if (phase == "will") then
-        fifi.x, fifi.y = 1300,604
-        captainDad.x, captainDad.y = 238,612
+        fifi.x, fifi.y = 1400,604
+        captainDad.x, captainDad.y = 538,612
+        bunny.x, bunny.y = 100,550
 	elseif (phase == "did") then
 
         function fifiTalk ()
             philacter.xScale = -1
-            philacter.x, philacter.y = 950, 150
-            saidText.x,saidText.y = 600, 250
+            philacter.x, philacter.y = 1050, 50
+            saidText.x,saidText.y = 700, 150
         end
 
         function dadTalk ()
             captainDad.xScale = 1
             philacter.xScale = 1
-            philacter.x, philacter.y = 100, 100
-            saidText.x,saidText.y = 340,208
+            philacter.x, philacter.y = 300, 0
+            saidText.x,saidText.y = 540,108
         end
         storyPhase = 0
         function tapStory( event )
@@ -115,16 +130,18 @@ function scene:show (event)
             elseif storyPhase == 3 then
                 dadTalk ()
                 saidText.text="C'est un voyage \ntres dangereux!"
+                bunnyhopUp()
             elseif storyPhase == 4 then
                 dadTalk ()
                 saidText.text="J'ai faillit mourrir \nnoyé par une vague geante"
-                saidText.x,saidText.y = 440,208
+                saidText.x,saidText.y = 640,108
             elseif storyPhase == 5 then
                 fifiTalk()
                 saidText.text="Avec moi cette vague ne nous\nrattrapera jamais!"
             elseif storyPhase == 6 then
                 dadTalk ()
                 saidText.text="D'accord, d'accord\nMais ne touche a rien\nsur le bateau!"
+                bunnyhopUp()
             elseif storyPhase == 5 then
                 fifiTalk()
                 saidText.text="Je te promets riem\n ALLONS-Y!"
@@ -150,7 +167,7 @@ function scene:show (event)
             return true
         end
         --------------------------------------------------------------
-        transition.to(fifi,{time=800,x=554, onComplete = function ()
+        transition.to(fifi,{time=800,x=854, onComplete = function ()
         Runtime:addEventListener("tap", tapStory)
         fifi:setSequence("stand")
         fifi:play()

@@ -13,10 +13,24 @@ local swapStageOnTap
 local swapStageState
 local fifi
 local fifiMove
+local mrMonkey
+local mrMonkeyMove
+local mrMonkeyFix
+local mrMonkeyLoop
 local wave
 local gameStage = display.newGroup()
 -------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------
+local function mrMonkeyWork()
+	local id = mrMonkeyFix
+	if AvariState[id].life > 1 then 
+		AvariState[id].life = AvariState[id].life - 1
+		local vObject = AvariState[id].object
+		vObject:avariUpdate()
+		transition.to(mrMonkey,{time=100,rotation=-20, transition=easing.continuousLoop})
+		print("mrMonkeyFix: ".. tostring(AvariState[id].life))
+	end
+end
 local function increaseLevel ()
 	print("------------ LEVEL: "..tostring(level).."/"..tostring(waveLevel).."------------------------")
 
@@ -85,8 +99,10 @@ local function increaseLevel ()
 	if waveLevel > level then --LOSE CONDITION
 
 		timer.cancel(gameloop)
+		timer.cancel(mrMonkeyLoop)
 		local swapDelay = 0
 		if not(fifiMove == nil) then transition.cancel(fifiMove) end --stop animation
+		if not(mrMonkeyMove == nil) then transition.cancel(mrMonkeyMove) end --stop animation
 		if swapStageState == "DOWN" then
 			swapStageOnTap ()
 			swapDelay = 1000
@@ -105,6 +121,7 @@ local function increaseLevel ()
 
 			transition.to(captainDad,{delay= 250, time=2000, rotation = 360,x=1380 })
 			transition.to(fifi,{delay=500, time=2000, rotation = 360,x=1380})
+			transition.to(mrMonkey,{delay=600, time=2000, rotation = 360,x=1380})
 			transition.to(rollingWaveA,{delay=10, time=2000, x = 1380})
 			transition.to(rollingWaveB,
 			{
@@ -125,9 +142,12 @@ local function increaseLevel ()
 	elseif level > 10 then --WIN CONDITION
 
 		timer.cancel(gameloop)
+		timer.cancel(mrMonkeyLoop)
 		if not(fifiMove == nil) then transition.cancel(fifiMove) end --stop animation
+		if not(mrMonkeyMove == nil) then transition.cancel(mrMonkeyMove) end --stop animation
 
 		transition.to(captainDad,{delay= 500, time=2000,x=1380 })
+		transition.to(mrMonkey,{delay,350,time=2000,x=1380})
 		transition.to(fifi,
 		{
 			delay=250, time=2000,x=1380,
@@ -233,6 +253,8 @@ function scene:create (event)
 				else
 					fifi:setSequence("stand")
 				end
+
+				if not(mrMonkeyMove == nil) then transition.cancel(mrMonkeyMove) end
 				-----
 				local ropeOffset
 				if isRope then
@@ -245,6 +267,10 @@ function scene:create (event)
 							fifi:play()
 						end
 					})
+					mrMonkeyMove = transition.to(mrMonkey,
+					{	delay=100+math.random(0, 200), time=500, x=buttonAvari.x + 50, y=buttonAvari.y + 50,
+						transition= easing.intSine,
+					})
 				else
 					ropeOffset = 0
 					fifiMove = transition.to(fifi,
@@ -255,12 +281,18 @@ function scene:create (event)
 							fifi:play()
 						end
 					})
+					mrMonkeyMove = transition.to(mrMonkey,
+					{	delay=100+math.random(0, 200), time=500, x=buttonAvari.x + 50,
+						transition= easing.intSine,
+					})
 				end
-				print(tostring(math.floor((fifi.x + 50) * 0.01)) .." / ".. tostring(math.floor(buttonAvari.x * 0.01)))
+				--print(tostring(math.floor((fifi.x + 50) * 0.01)) .." / ".. tostring(math.floor(buttonAvari.x * 0.01)))
 				if (buttonAvari.x - fifi.x) > 0 then
 					fifi.xScale = 0.8
+					mrMonkey.xScale = 0.6
 				else
 					fifi.xScale = -0.8
+					mrMonkey.xScale = -0.6
 				end
 				if math.floor((fifi.x + ropeOffset) * 0.01) == math.floor(buttonAvari.x * 0.01) then
 					AvariState[id].life = AvariState[id].life - 1
@@ -270,7 +302,9 @@ function scene:create (event)
 					timer.performWithDelay(300,function ()
 						fifi:setSequence("stand")
 					end )
+					
 					buttonAvari:avariUpdate()
+					mrMonkeyFix = id
 				else
 					print("out of range")
 				end
@@ -296,7 +330,13 @@ function scene:create (event)
 	-------------------------------------------------
 	spawnAvari(1,793, 343,true)
 	spawnAvari(2,975, 423,true)
-	-------------------------------------------------
+	-------------------------------------------------\
+	mrMonkey = display.newImageRect(sceneGroup, "assets_qrb/mr_monkey.png",178,222)
+    mrMonkey.anchorX, mrMonkey.anchorY = 0.5,1.0
+    mrMonkey.xScale, mrMonkey.yScale = 0.6, 0.6
+	mrMonkey.x, mrMonkey.y = 1400, 504
+	gameStage:insert(mrMonkey)
+	-------------------------------------------------\
 	local fifiSheet = graphics.newImageSheet( "assets_qrb/fifi.png", fifiSheepOptions )
 	fifi = display.newSprite(sceneGroup, fifiSheet, fifiSqData )
     fifi:setSequence("walk")
@@ -364,12 +404,14 @@ function scene:create (event)
 			transition.to( gameStage, {time=400, y=-640})
 			timer.performWithDelay(400,function ()
 				fifi.x,fifi.y = 1100,1000
+				mrMonkey.x, mrMonkey.y = 1300,1000
 				fifi:setSequence("walk")
       			fifi:play()
 				transition.to( fifi, {time = 500, x=852, y=1144, onComplete = function()
 					fifi:setSequence("stand")
       				fifi:play()
 				end})
+				transition.to( mrMonkey, {delay=100, time = 500, x=952, y=1144})
 			end)
 			swapStageState = "goingDown"
 
@@ -378,12 +420,14 @@ function scene:create (event)
 			transition.to( gameStage, {time=400,y=0})
 			timer.performWithDelay(400,function ()
 				fifi.x, fifi.y = 1100,504
+				mrMonkey.x, mrMonkey.y = 1300,500
 				fifi:setSequence("walk")
 				fifi:play()
 				transition.to( fifi, {time = 500, x=752, y=504, onComplete = function()
 					fifi:setSequence("stand")
       				fifi:play()
 				end} )
+				transition.to( mrMonkey, {delay=100, time = 500, x=952, y=504})
 			end)
 			swapStageState = "goingUp"
 		end
@@ -420,18 +464,21 @@ function scene:show (event)
 	local tapTutorial
 
 	fifi.x, fifi.y = 1200,504
+	mrMonkey.x, mrMonkey.y = 1200,504
 	captainDad.x, captainDad.y = 110,460
 	captainDad:setSequence("stand")
 	captainDad:play()
 
 	fifi.rotation = 0
 	captainDad.rotation = 0
+	mrMonkey.rotation = 0
 
 	function tutorialRope ()
 		if AvariState[1].life <= 0 then
 			AvariState[1].life = -1
 			AvariState[1].object:avariUpdate()
 			gameloop = timer.performWithDelay( gameSpeed, increaseLevel,0)
+			mrMonkeyLoop = timer.performWithDelay( gameSpeed * 2.3, mrMonkeyWork,0)
 			philacter.isVisible = false
 			saidText.isVisible = false
 		else
@@ -517,7 +564,7 @@ function scene:show (event)
 				fifi:setSequence("stand")
 				fifi:play()
 			end})
-
+		transition.to( mrMonkey, {delay=100, time = 800, x=552, y=544})
 		--
 	end
 end

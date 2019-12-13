@@ -14,8 +14,13 @@ function scene:create (event)
     fifi:play()
     fifi.anchorX, fifi.anchorY = 0.5,1
     fifi.xScale, fifi.yScale = 0.6,0.6
-    fifi.x, fifi.y = 1000, fHeight - 120
-
+    fifi.x, fifi.y = 1000, fHeight - 80
+    -------------------------------------------------
+    local mrMonkey = display.newImageRect(sceneGroup, "assets_qrb/mr_monkey.png",178,222)
+    mrMonkey.anchorX, mrMonkey.anchorY = 0.5,1.0
+    mrMonkey.xScale, mrMonkey.yScale = 0.6, 0.6
+    mrMonkey.x, mrMonkey.y = 800, fHeight - 100
+    transition.to(mrMonkey, {delay=150, time=400, y=mrMonkey.y + 10, transition=easing.continuousLoop,iterations=0})
 	-------------------------------------------------
     local captainDadSheet = graphics.newImageSheet( "assets_qrb/pirate_dad.png", captainDadSheepOptions )
 	captainDad = display.newSprite(sceneGroup, captainDadSheet, captainDadSqData )
@@ -31,13 +36,14 @@ function scene:create (event)
     ship.xScale, ship.yScale = 0.8,0.8
     ship.x, ship.y = 100, fHeight -20
     transition.to(ship, {time=500, y=fHeight - 10, transition= easing.continuousLoop, iterations=0})
-    -------------------------------------------------
+    -----------------------------------------------------------------------------------------------------STAGE
     local stageGroup = display.newGroup()
     stageGroup:insert(gameoverBG)
     stageGroup:insert(ship)
+    stageGroup:insert(mrMonkey)
     stageGroup:insert(fifi)
     stageGroup:insert(captainDad)
-    --------------------------------------
+    -----------------------------------------------------------------------------------------UI
     local btGoToGame = display.newImageRect( "assets/ui_frame.png", 350, 128)
     local txGoToGame = display.newText("REJOUER", 0, 0, "Comic Sans MS", 50)
     txGoToGame:setFillColor(1,1,0)
@@ -62,25 +68,38 @@ function scene:create (event)
         composer.gotoScene ("scene.menu")
     end
     btGoToGame:addEventListener("tap", onTapRetry)
-    --------------------------------------
+    -----------------------------------------------------CANNIBALE
+    local n = 0
     local cannibaleSheepOptions =
     {
-    	numFrames = 2,
-    	width = 151, height = 175,
-    	sheetContentWidth = 302, sheetContentHeight = 175
+    	numFrames = 4,
+    	width = 140, height = 180,
+    	sheetContentWidth = 280, sheetContentHeight = 360
     }
-    local cannibaleSheet = graphics.newImageSheet( "assets_qrb/cannibale.png", cannibaleSheepOptions )
-	local cannibale = display.newSprite(sceneGroup, cannibaleSheet, {name="cannibale", start=1, count=cannibaleSheepOptions.numFrames} )
-    --cannibale.anchorX, cannibale.anchorY = 0.5,1.0
-    cannibale.xScale, cannibale.yScale = 1.5,1.5
-    cannibale.x, cannibale.y = 1236, fHeight - 140
-    transition.to(cannibale, {time=250, y=cannibale.y + 15, transition=easing.continuousLoop,iterations=0})
-    stageGroup:insert(cannibale)
+    --for i=0,9 do
+    for i=0, 8 do
+
+        local cannibaleSheet = graphics.newImageSheet( "assets_qrb/cannibale.png", cannibaleSheepOptions )
+        local cannibale = display.newSprite(sceneGroup, cannibaleSheet, {name="cannibale", start=1, count=cannibaleSheepOptions.numFrames} )
+
+        n = n + 1
+        if n >= (cannibaleSheepOptions.numFrames+1) then n = 1 end
+        cannibale:setFrame(n)
+        
+
+        cannibale.xScale, cannibale.yScale = 1.1,1.1
+        cannibale.x, cannibale.y = 1200 + (i*120) + math.random(-25, 25), fHeight - 100 - (40 - (i * 5))
+        if cannibale.x > 1600 and cannibale.x < 1780 then cannibale.x = cannibale.x + 250 end
+        transition.to(cannibale, {delay= math.random(0,250), time=250, y=cannibale.y + 15, transition=easing.continuousLoop,iterations=0})
+        stageGroup:insert(cannibale)
+
+    end
     --------------------------------------
 
     sceneGroup:insert(stageGroup)
     transition.to(captainDad,{time=6000, delay=2000, x= captainDad.x + 800, transition = easing.inSine})
-    transition.to(fifi,{time=4000, delay=4000, x= fifi.x + 800, transition = easing.inSine})
+    transition.to(fifi,{time=4000, delay=4000, x= fifi.x + 750, transition = easing.inSine})
+    transition.to(mrMonkey,{time=4000, delay=4000, x= mrMonkey.x + 800, transition = easing.inSine})
     transition.to(stageGroup,{time=6000, delay=1000, x = -1136, transition= easing.inOutSine})
 end
 ----------------------------------------------------------------------------------------- show()
